@@ -21,7 +21,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .common-layout {
   width: 100%;
   height: 100vh; /* 使布局高度铺满整个视窗 */
