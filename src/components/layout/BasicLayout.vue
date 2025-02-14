@@ -1,7 +1,9 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside width="25%">Aside</el-aside>
+      <el-aside width="25%">
+        <AssetDisplayModule />
+      </el-aside>
       <el-main>Main</el-main>
       <el-aside width="25%">Aside</el-aside>
     </el-container>
@@ -9,12 +11,17 @@
 </template>
 
 <script>
+import AssetDisplayModule from '../AssetDisplayModule.vue';
+
 export default {
   name: 'BasicLayout',
+  components: {
+    AssetDisplayModule,
+  },
 };
 </script>
 
-<style>
+<style scoped>
 .common-layout {
   width: 100%;
   height: 100vh; /* 使布局高度铺满整个视窗 */
