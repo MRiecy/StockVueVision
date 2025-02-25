@@ -4,7 +4,28 @@
       <el-aside width="25%">
         <AssetDisplayModule />
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main class="main-content">
+        <!-- 第一块 -->
+        <section class="section">
+          <h3>板块一标题</h3>
+          <!-- 具体内容 -->
+        </section>
+
+        <!-- 第二块 -->
+        <section class="section">
+          <h3>板块二标题</h3>
+          <!-- 具体内容 -->
+        </section>
+
+        <!-- 第三块 图表展示 -->
+        <ChartSection />
+
+        <!-- 第四块 -->
+        <section class="section">
+          <h3>板块四标题</h3>
+          <!-- 具体内容 -->
+        </section>
+      </el-main>
       <el-aside width="25%">Aside</el-aside>
     </el-container>
   </div>
@@ -12,11 +33,12 @@
 
 <script>
 import AssetDisplayModule from '../AssetDisplayModule.vue';
-
+import ChartSection from './ChartSection.vue';
 export default {
   name: 'BasicLayout',
   components: {
     AssetDisplayModule,
+    ChartSection,
   },
 };
 </script>
@@ -39,5 +61,20 @@ export default {
 .el-main {
   background-color: #ffffff; /* 主体背景色 */
   padding: 20px; /* 主体内边距 */
+}
+.main-content {
+  overflow-y: auto;
+  padding: 20px;
+}
+.section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+}
+.section > h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
 }
 </style>
