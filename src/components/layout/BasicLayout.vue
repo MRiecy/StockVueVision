@@ -16,16 +16,8 @@
           <!-- 策略执行结果 -->
           <StrategyExecutionResult />
         </div>
-
-        <!-- 第三块 图表展示 -->
-        <ChartSection />
-
-        <!-- 第四块 -->
-        <section class="section">
-          <h3>板块四标题</h3>
-          <!-- 具体内容 -->
-        </section>
       </el-main>
+
       <el-aside width="25%">
         <RightAside />
       </el-aside>
@@ -35,7 +27,6 @@
 
 <script>
 import AssetDisplayModule from '../AssetDisplayModule.vue';
-import ChartSection from './ChartSection.vue';
 import RightAside from './RightAside.vue';
 import StrategyExecution from './StrategyExecution.vue'; // 引入策略选择组件
 import StrategyExecutionResult from './StrategyExecutionResult.vue'; // 引入策略执行结果组件
@@ -44,7 +35,6 @@ export default {
   name: 'BasicLayout',
   components: {
     AssetDisplayModule,
-    ChartSection,
     RightAside,
     StrategyExecution,
     StrategyExecutionResult,
