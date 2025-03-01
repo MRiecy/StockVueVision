@@ -6,16 +6,16 @@
       </el-aside>
       <el-main class="main-content">
         <!-- 第一块 -->
-        <section class="section">
-          <h3>板块一标题</h3>
-          <!-- 具体内容 -->
-        </section>
+        <div class="strategy-section">
+          <!-- 策略选择和详情 -->
+          <StrategyExecution />
+        </div>
 
         <!-- 第二块 -->
-        <section class="section">
-          <h3>板块二标题</h3>
-          <!-- 具体内容 -->
-        </section>
+        <div class="result-section">
+          <!-- 策略执行结果 -->
+          <StrategyExecutionResult />
+        </div>
 
         <!-- 第三块 图表展示 -->
         <ChartSection />
@@ -26,7 +26,9 @@
           <!-- 具体内容 -->
         </section>
       </el-main>
-      <el-aside width="25%">Aside</el-aside>
+      <el-aside width="25%">
+        <RightAside />
+      </el-aside>
     </el-container>
   </div>
 </template>
@@ -34,11 +36,18 @@
 <script>
 import AssetDisplayModule from '../AssetDisplayModule.vue';
 import ChartSection from './ChartSection.vue';
+import RightAside from './RightAside.vue';
+import StrategyExecution from './StrategyExecution.vue'; // 引入策略选择组件
+import StrategyExecutionResult from './StrategyExecutionResult.vue'; // 引入策略执行结果组件
+
 export default {
   name: 'BasicLayout',
   components: {
     AssetDisplayModule,
     ChartSection,
+    RightAside,
+    StrategyExecution,
+    StrategyExecutionResult,
   },
 };
 </script>

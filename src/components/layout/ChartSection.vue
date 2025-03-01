@@ -123,6 +123,6 @@
     padding: 15px;
     background-color: #fff;
     border: 1px solid #dcdcdc;
-    border-radius: 8px;
+    border-radius: 8px;/* 圆角边框 */
   }
   </style>
