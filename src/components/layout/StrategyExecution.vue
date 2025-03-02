@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, } from 'vue';
 import axios from 'axios';
 
 export default {

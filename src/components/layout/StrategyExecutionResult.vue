@@ -25,7 +25,6 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import * as echarts from 'echarts';
 import axios from 'axios';
 import ChartSection from './ChartSection.vue'; // 引入 ChartSection 组件
 
