@@ -4,19 +4,40 @@
       <el-aside width="25%">
         <AssetDisplayModule />
       </el-aside>
-      <el-main>Main</el-main>
-      <el-aside width="25%">Aside</el-aside>
+      <el-main class="main-content">
+        <!-- 第一块 -->
+        <div class="strategy-section">
+          <!-- 策略选择和详情 -->
+          <StrategyExecution />
+        </div>
+
+        <!-- 第二块 -->
+        <div class="result-section">
+          <!-- 策略执行结果 -->
+          <StrategyExecutionResult />
+        </div>
+      </el-main>
+
+      <el-aside width="25%">
+        <RightAside />
+      </el-aside>
     </el-container>
   </div>
 </template>
 
 <script>
 import AssetDisplayModule from '../AssetDisplayModule.vue';
+import RightAside from './RightAside.vue';
+import StrategyExecution from './StrategyExecution.vue'; // 引入策略选择组件
+import StrategyExecutionResult from './StrategyExecutionResult.vue'; // 引入策略执行结果组件
 
 export default {
   name: 'BasicLayout',
   components: {
     AssetDisplayModule,
+    RightAside,
+    StrategyExecution,
+    StrategyExecutionResult,
   },
 };
 </script>
@@ -39,5 +60,20 @@ export default {
 .el-main {
   background-color: #ffffff; /* 主体背景色 */
   padding: 20px; /* 主体内边距 */
+}
+.main-content {
+  overflow-y: auto;
+  padding: 20px;
+}
+.section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+}
+.section > h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
 }
 </style>
