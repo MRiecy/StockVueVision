@@ -110,7 +110,7 @@ export default {
       chart.setOption({
         title: {
           text: '资产类别对比分析',
-         
+          subtext: '展示各类资产的总资产和收益率',
           left: 'center',
         },
         tooltip: {
@@ -168,7 +168,7 @@ export default {
       chart.setOption({
         title: {
           text: '时间段对比分析',
-
+          subtext: '展示不同时间段的总资产和收益率',
           left: 'center',
         },
         tooltip: {
@@ -233,7 +233,7 @@ export default {
       chart.setOption({
         title: {
           text: '地区对比分析',
-          
+          subtext: '展示不同地区的总资产和收益率',
           left: 'center',
         },
         tooltip: {

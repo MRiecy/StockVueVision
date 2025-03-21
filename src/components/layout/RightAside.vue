@@ -100,10 +100,11 @@ export default {
 .el-table {
   height: 100%; /* 表格高度占满 */
 }
+
 .report-content {
-    flex: 1; /* 报告内容区域占满 */
-    padding: 10px;
-    overflow-y: auto;
-    color: #666666;
-  }
-  </style>
+  flex: 1; /* 报告内容区域占满 */
+  padding: 10px;
+  overflow-y: auto;
+  color: #666666;
+}
+</style>

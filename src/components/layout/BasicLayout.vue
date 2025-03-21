@@ -1,10 +1,10 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside width="25%">
+      <el-aside width="25%" class="no-gap">
         <AssetDisplayModule />
       </el-aside>
-      <el-main class="main-content">
+      <el-main class="main-content no-gap">
         <!-- 第一块 -->
         <div class="strategy-section">
           <!-- 策略选择和详情 -->
@@ -18,7 +18,7 @@
         </div>
       </el-main>
 
-      <el-aside width="25%">
+      <el-aside width="25%" class="no-gap">
         <RightAside />
       </el-aside>
     </el-container>
@@ -54,26 +54,27 @@ export default {
 
 .el-aside {
   background-color: #f5f5f5; /* 侧边栏背景色 */
-  padding: 20px; /* 侧边栏内边距 */
+
+}
+
+.el-aside.no-gap,
+.el-main.no-gap  {
+  margin: 0;/* 移除默认外边距 */
+  background-color: #ffffff; /* 主体背景色 */
+  padding: 0; /* 主体内边距 */
+}
+
+.el-aside.no-gap {
+  background-color: #f5f5f5; /* 左右侧边栏背景色 */
 }
 
 .el-main {
   background-color: #ffffff; /* 主体背景色 */
-  padding: 20px; /* 主体内边距 */
 }
+
 .main-content {
   overflow-y: auto;
-  padding: 20px;
+  padding: 0;/*移除默认内边距 */
 }
-.section {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fff;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-}
-.section > h3 {
-  font-size: 18px;
-  margin-bottom: 15px;
-}
+
 </style>
