@@ -68,7 +68,8 @@ export default {
 }
 
 .upper-section {
-  flex: 1; /* 占据剩余空间 */
+  height: 50%; /* 固定高度为右侧栏的上半部分 */
+  overflow-y: auto; /* 多出来的部分通过滚动条滑动显示 */
   background-color: #ffffff;
   border-radius: 8px;
   padding: 15px;
@@ -76,7 +77,8 @@ export default {
 }
 
 .lower-section {
-  flex: 1; /* 占据剩余空间 */
+  height: 50%; /* 固定高度为右侧栏的下半部分 */
+  overflow-y: auto; /* 多出来的部分通过滚动条滑动显示 */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -96,7 +98,17 @@ export default {
   border-radius: 8px;
   background-color: #f9f9f9;
 }
+.title {
+  font-weight: bold; /* 加粗字体 */
+  font-size: 18px; /* 可以根据需要调整字体大小 */
+  margin-bottom: 10px; /* 与下方内容的间距 */
 
+}
+
+.content {
+  flex: 1; /* 内容区域占满剩余空间 */
+  overflow-y: auto; /* 内容超出时显示滚动条 */
+}
 .el-table {
   height: 100%; /* 表格高度占满 */
 }
