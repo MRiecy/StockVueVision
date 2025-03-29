@@ -14,16 +14,56 @@
         </el-select>
       </div>
       <div class="table-container">
-        <el-table :data="selectedAccountData" style="width: 100%" fit>
+        <el-table 
+          :data="selectedAccountData" 
+          style="width: 100%" 
+          border
+          :header-cell-style="headerStyle"
+          :cell-style="cellStyle"
+          :row-class-name="tableRowClassName"
+        >
           <el-table-column
-            v-for="(column, index) in columns"
-            :key="index"
-            :prop="column.prop"
-            :label="column.label"
-            :min-width="column.minWidth"
-            :width="column.width"
-            show-overflow-tooltip
-          ></el-table-column>
+            prop="account_id"
+            label="资金账号"
+            min-width="120"
+            align="center"
+          />
+          <el-table-column
+            prop="total_asset"
+            label="总资产"
+            min-width="150"
+            align="right"
+          />
+          <el-table-column
+            prop="cash"
+            label="可用金额"
+            min-width="150"
+            align="right"
+          />
+          <el-table-column
+            prop="frozen_cash"
+            label="冻结金额"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="total_return_rate"
+            label="总收益率"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="total_positions"
+            label="持仓数量"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="market_value"
+            label="持仓市值"
+            min-width="150"
+            align="right"
+          />
         </el-table>
       </div>
     </div>
@@ -32,16 +72,44 @@
     <div class="asset-details">
       <div class="title">账户资产数据详情</div>
       <div class="table-stock">
-        <el-table :data="selectedStocks" style="width: 100%" fit>
+        <el-table 
+          :data="selectedStocks" 
+          style="width: 100%" 
+          border
+          :header-cell-style="headerStyle"
+          :cell-style="cellStyle"
+          :row-class-name="tableRowClassName"
+        >
           <el-table-column
-            v-for="(column, index) in stockColumns"
-            :key="index"
-            :prop="column.prop"
-            :label="column.label"
-            :min-width="column.minWidth"
-            :width="column.width"
-            show-overflow-tooltip
-          ></el-table-column>
+            prop="stock_code"
+            label="股票代码"
+            min-width="120"
+            align="center"
+          />
+          <el-table-column
+            prop="open_price"
+            label="当前价格"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="volume"
+            label="持仓数量"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="avg_price"
+            label="成本价"
+            min-width="120"
+            align="right"
+          />
+          <el-table-column
+            prop="market_value"
+            label="股票市值"
+            min-width="150"
+            align="right"
+          />
         </el-table>
       </div>
     </div>
@@ -49,40 +117,44 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { fetchAccountInfo } from '@/api/accountApi';
 
 const accounts = ref([]);
 const selectedAccount = ref('');
-const columns = ref([
-  { prop: 'account_id', label: '资金账号', minWidth: 100, width: 100 },
-  { prop: 'total_asset', label: '总资产', minWidth: 100, width: 100 },
-  { prop: 'cash', label: '可用金额', minWidth: 100, width: 100 },
-  { prop: 'frozen_cash', label: '冻结金额', minWidth: 100, width: 100 },
-  { prop: 'total_return_rate', label: '总收益率', minWidth: 100, width: 100 },
-  { prop: 'total_positions', label: '持仓数量', minWidth: 100, width: 100 },
-  { prop: 'market_value', label: '持仓市值', minWidth: 100, width: 100 },
-]);
-const stockColumns = ref([
-  { prop: 'stock_code', label: '股票代码', minWidth: 100, width: 100 },
-  { prop: 'open_price', label: '当前价格', minWidth: 100, width: 100 },
-  { prop: 'volume', label: '持仓数量', minWidth: 100, width: 100 },
-  { prop: 'avg_price', label: '成本价', minWidth: 100, width: 100 },
-  { prop: 'market_value', label: '股票市值', minWidth: 100, width: 100 },
-]);
+
+const headerStyle = () => ({
+  backgroundColor: '#f5f5f5',
+  fontWeight: 'bold',
+  padding: '8px 0',
+  textAlign: 'center'
+});
+
+const cellStyle = ({ column }) => ({
+  padding: '8px 0',
+  textAlign: column.align || 'center'
+});
+
+const tableRowClassName = ({ rowIndex }) => {
+  if (rowIndex % 2 === 0) {
+    return 'even-row';
+  }
+  return '';
+};
 
 onMounted(async () => {
   try {
     const data = await fetchAccountInfo();
     if (data && data.accounts) {
       accounts.value = data.accounts.map((account) => {
-        // 初始总资产固定为 1000 万
         const initialTotalAsset = 10000000;
-        // 计算总收益率
-        const totalReturnRate = initialTotalAsset !== 0 ? ((account.total_asset - initialTotalAsset) / initialTotalAsset) * 100 : 0;
+        const totalReturnRate = initialTotalAsset !== 0 
+          ? ((account.total_asset - initialTotalAsset) / initialTotalAsset) * 100 
+          : 0;
         
-        // 计算持仓数量
-        const totalPositions = account.positions ? account.positions.reduce((sum, pos) => sum + pos.volume, 0) : 0;
+        const totalPositions = account.positions 
+          ? account.positions.reduce((sum, pos) => sum + pos.volume, 0) 
+          : 0;
 
         return {
           ...account,
@@ -106,12 +178,12 @@ const selectedAccountData = computed(() => {
   return [
     {
       account_id: account.account_id,
-      total_asset: account.total_asset,
-      cash: account.cash,
-      frozen_cash: account.frozen_cash,
+      total_asset: formatNumber(account.total_asset, 2),
+      cash: formatNumber(account.cash, 2),
+      frozen_cash: formatNumber(account.frozen_cash, 2),
       total_return_rate: account.total_return_rate,
-      total_positions: account.total_positions,
-      market_value: account.market_value,
+      total_positions: formatNumber(account.total_positions, 0),
+      market_value: formatNumber(account.market_value, 2),
     },
   ];
 });
@@ -120,54 +192,30 @@ const selectedStocks = computed(() => {
   const account = accounts.value.find((acc) => acc.account_id === selectedAccount.value);
   if (!account || !account.positions) return [];
   
-  return account.positions.map((pos) => {
-    return {
-      stock_code: pos.stock_code,
-      open_price: pos.open_price,
-      volume: pos.volume,
-      avg_price: pos.avg_price,
-      market_value: pos.market_value,
-    };
-  });
+  // 根据股票市值降序排序，并选取前10条记录
+  return account.positions
+    .sort((a, b) => b.market_value - a.market_value) // 降序排序
+    .slice(0, 10) // 取前10条
+    .map((pos) => {
+      return {
+        stock_code: pos.stock_code,
+        open_price: formatNumber(pos.open_price, 4),
+        volume: formatNumber(pos.volume, 0),
+        avg_price: formatNumber(pos.avg_price, 4),
+        market_value: formatNumber(pos.market_value, 2),
+      };
+    });
 });
 
-// 动态调整列宽
-const adjustColumnWidth = () => {
-  const table = document.querySelector('.el-table__body-wrapper');
-  if (!table) return;
-
-  columns.value.forEach((column) => {
-    const cells = table.querySelectorAll(`.el-table__row td:nth-child(${column.prop})`);
-    let maxWidth = column.minWidth;
-    cells.forEach((cell) => {
-      const contentWidth = cell.scrollWidth;
-      if (contentWidth > maxWidth) {
-        maxWidth = contentWidth;
-      }
-    });
-    column.width = maxWidth;
-  });
-
-  stockColumns.value.forEach((column) => {
-    const cells = table.querySelectorAll(`.el-table__row td:nth-child(${column.prop})`);
-    let maxWidth = column.minWidth;
-    cells.forEach((cell) => {
-      const contentWidth = cell.scrollWidth;
-      if (contentWidth > maxWidth) {
-        maxWidth = contentWidth;
-      }
-    });
-    column.width = maxWidth;
-  });
+const formatNumber = (value, decimals) => {
+  if (value === undefined || value === null) return '0.'.padEnd(decimals + 2, '0');
+  const num = Number(value);
+  if (isNaN(num)) return '0.'.padEnd(decimals + 2, '0');
+  
+  const parts = num.toFixed(decimals).toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
 };
-
-watch(selectedAccountData, () => {
-  setTimeout(adjustColumnWidth, 0);
-});
-
-watch(selectedStocks, () => {
-  setTimeout(adjustColumnWidth, 0);
-});
 </script>
 
 <style scoped>
@@ -176,48 +224,44 @@ watch(selectedStocks, () => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.asset-display-module {
+.asset-display-module, .asset-details {
   width: 100%;
   padding: 20px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
   background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.asset-details {
-  width: 100%;
-  flex-grow: 1;
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .title {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
 }
 
 .select-container {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
-.table-container {
-  height: calc(100% - 100px);
-  padding: 8px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
+.table-container, .table-stock {
+  width: 100%;
   overflow: hidden;
 }
 
+.table-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
 .table-stock {
-  height: 100%;
   overflow-y: auto;
 }
 
@@ -228,9 +272,44 @@ watch(selectedStocks, () => {
 .el-select .el-input__inner {
   border-radius: 8px;
   border: 1px solid #dcdcdc;
+  padding: 10px;
+  font-size: 14px;
 }
 
-.el-select-dropdown__item.selected {
-  color: #3366cc;
+.el-table {
+  font-size: 14px;
+  color: #333;
+  table-layout: auto;
+}
+
+.el-table th {
+  padding: 8px 0;
+}
+
+.el-table td {
+  padding: 8px 0;
+}
+
+.even-row {
+  background-color: #f9f9f9;
+}
+
+.el-table__body-wrapper {
+  overflow-x: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .left-aside {
+    flex-direction: column;
+  }
+  
+  .table-container, .table-stock {
+    height: auto;
+  }
+  
+  .el-table {
+    font-size: 12px;
+  }
 }
 </style>
