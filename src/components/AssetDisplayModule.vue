@@ -144,9 +144,12 @@ const tableRowClassName = ({ rowIndex }) => {
 
 onMounted(async () => {
   try {
+    console.log('开始获取账户信息...');
     const data = await fetchAccountInfo();
+    console.log('获取到的账户数据:', data);
     if (data && data.accounts) {
       accounts.value = data.accounts.map((account) => {
+        console.log('处理账户数据:', account.account_id);
         const initialTotalAsset = 10000000;
         const totalReturnRate = initialTotalAsset !== 0 
           ? ((account.total_asset - initialTotalAsset) / initialTotalAsset) * 100 
@@ -165,12 +168,20 @@ onMounted(async () => {
       
       if (accounts.value.length > 0) {
         selectedAccount.value = accounts.value[0].account_id;
+        console.log('已选择默认账户:', selectedAccount.value);
       }
+    } else {
+      console.warn('获取到的账户数据格式不正确:', data);
     }
   } catch (error) {
     console.error('获取账户信息失败：', error);
   }
 });
+
+// 处理账户选择变更
+const handleAccountChange = (accountId) => {
+  selectedAccount.value = accountId;
+};
 
 const selectedAccountData = computed(() => {
   const account = accounts.value.find((acc) => acc.account_id === selectedAccount.value);
