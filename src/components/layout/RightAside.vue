@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import AssetComparisonAnalysis from '../AssetComparisonAnalysis.vue';
+import AssetComparisonAnalysis from './AssetComparisonAnalysis.vue';
 
 export default {
   name: 'RightAside',
