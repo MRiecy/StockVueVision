@@ -294,31 +294,55 @@ export default {
 
     // 切换图表显示
     const toggleCategoryChart = () => {
-      isCategoryChartVisible.value = !isCategoryChartVisible.value;
-      if (isCategoryChartVisible.value) {
-        nextTick(() => {
-          initCategoryChart();
-        });
+  isCategoryChartVisible.value = !isCategoryChartVisible.value;
+  if (isCategoryChartVisible.value) {
+    nextTick(() => {
+      initCategoryChart();
+    });
+  } else {
+    // 销毁图表实例
+    if (categoryChart.value) {
+      const chart = echarts.getInstanceByDom(categoryChart.value);
+      if (chart) {
+        chart.dispose();
       }
-    };
+    }
+  }
+};
 
     const toggleTimeChart = () => {
-      isTimeChartVisible.value = !isTimeChartVisible.value;
-      if (isTimeChartVisible.value) {
-        nextTick(() => {
-          initTimeChart();
-        });
+  isTimeChartVisible.value = !isTimeChartVisible.value;
+  if (isTimeChartVisible.value) {
+    nextTick(() => {
+      initTimeChart();
+    });
+  } else {
+    // 销毁图表实例
+    if (timeChart.value) {
+      const chart = echarts.getInstanceByDom(timeChart.value);
+      if (chart) {
+        chart.dispose();
       }
-    };
+    }
+  }
+};
 
-    const toggleRegionChart = () => {
-      isRegionChartVisible.value = !isRegionChartVisible.value;
-      if (isRegionChartVisible.value) {
-        nextTick(() => {
-          initRegionChart();
-        });
+     const toggleRegionChart = () => {
+  isRegionChartVisible.value = !isRegionChartVisible.value;
+  if (isRegionChartVisible.value) {
+    nextTick(() => {
+      initRegionChart();
+    });
+  } else {
+    // 销毁图表实例
+    if (regionChart.value) {
+      const chart = echarts.getInstanceByDom(regionChart.value);
+      if (chart) {
+        chart.dispose();
       }
-    };
+    }
+  }
+};
 
     return {
       categoryChart,
