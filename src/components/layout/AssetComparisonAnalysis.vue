@@ -110,7 +110,7 @@ export default {
       chart.setOption({
         title: {
           text: '资产类别对比分析',
-         
+
           left: 'center',
         },
         tooltip: {
@@ -233,7 +233,7 @@ export default {
       chart.setOption({
         title: {
           text: '地区对比分析',
-          
+
           left: 'center',
         },
         tooltip: {

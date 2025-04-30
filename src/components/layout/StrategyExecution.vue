@@ -29,22 +29,57 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 export default {
   name: 'StrategyExecution',
   setup() {
     const strategies = ref([]);
-    const selectedStrategy = ref({});
+    const selectedStrategy = ref({
+      description: '',
+      parameters: []
+    });
 
     const fetchStrategies = async () => {
       try {
-        const response = await axios.get('/api/strategies');
-        strategies.value = response.data;
-        selectedStrategy.value = response.data[0];
+        const response = await axios.get('/api/strategies/');
+        if (response.data && response.data.strategies && response.data.strategies.length > 0) {
+          strategies.value = response.data.strategies;
+          selectedStrategy.value = response.data.strategies[0];
+          
+          if (!selectedStrategy.value.parameters) {
+            selectedStrategy.value.parameters = [];
+          }
+        } else {
+          console.warn('获取到的策略数据格式不正确或为空');
+          strategies.value = [
+            {
+              id: 1,
+              name: '量化价值策略',
+              description: '基于PE、PB等基本面指标的价值投资策略',
+              parameters: [
+                { paramKey: 'PE', paramValue: '20', description: '市盈率上限' },
+                { paramKey: 'PB', paramValue: '2.5', description: '市净率上限' }
+              ]
+            }
+          ];
+          selectedStrategy.value = strategies.value[0];
+        }
       } catch (error) {
         console.error('获取策略列表失败：', error);
+        strategies.value = [
+          {
+            id: 1,
+            name: '量化价值策略',
+            description: '基于PE、PB等基本面指标的价值投资策略',
+            parameters: [
+              { paramKey: 'PE', paramValue: '20', description: '市盈率上限' },
+              { paramKey: 'PB', paramValue: '2.5', description: '市净率上限' }
+            ]
+          }
+        ];
+        selectedStrategy.value = strategies.value[0];
       }
     };
 
