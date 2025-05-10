@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 获取资产类别数据
 export async function fetchAssetCategoryData() {
-    const response = await axios.get('/api/asset-category/');
+    const response = await axios.get('/api/asset_comparison/');
     return response.data;
 }
 
