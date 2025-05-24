@@ -47,7 +47,7 @@ export default {
         if (response.data && response.data.strategies && response.data.strategies.length > 0) {
           strategies.value = response.data.strategies;
           selectedStrategy.value = response.data.strategies[0];
-          
+
           if (!selectedStrategy.value.parameters) {
             selectedStrategy.value.parameters = [];
           }
@@ -103,53 +103,68 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column; /* 垂直排列子元素 */
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .strategy-display-module {
   width: 100%;
-  padding: 20px;
-  border: 1px solid #dcdcdc; /* 添加浅灰色边框 */
-  border-radius: 8px; /* 添加圆角 */
-  background-color: #ffffff; /* 组件背景色 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* 添加阴影效果 */
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .select-container {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .strategy-description {
-  margin-top: 20px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 8px;
   background-color: #f5f6fa;
-  border-radius: 8px;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .strategy-parameters {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
+  margin-top: 10px;
 }
 
 .el-select {
   width: 100%;
 }
 
-/* 修改下拉框样式 */
 .el-select .el-input__inner {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid #dcdcdc;
+  font-size: 12px;
+  padding: 5px;
+}
+
+.el-table {
+  font-size: 12px;
+}
+
+.el-table th,
+.el-table td {
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.el-table th {
+  background-color: #f5f5f5;
 }
 
 .el-select-dropdown__item.selected {
-  color: #3366cc; /* 选中项颜色 */
+  color: #3366cc;
 }
 </style>

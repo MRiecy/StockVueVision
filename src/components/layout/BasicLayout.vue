@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import AssetDisplayModule from '../AssetDisplayModule.vue';
+import AssetDisplayModule from './AssetDisplayModule.vue';
 import RightAside from './RightAside.vue';
 import StrategyExecution from './StrategyExecution.vue';
 import StrategyExecutionResult from './StrategyExecutionResult.vue';

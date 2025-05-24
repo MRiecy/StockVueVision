@@ -3,7 +3,7 @@ import axios from 'axios'
 
 // 创建一个axios实例
 const api = axios.create({
-  baseURL: '',
+  baseURL: 'http://localhost:8000',  // 添加后端服务器地址
   timeout: 30000, // 增加超时时间到30秒
   headers: {
     'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export async function fetchAccountInfo() {
       // 设置请求时发生错误
       console.error('请求设置错误:', error.message);
     }
-    
+
     // 返回模拟数据以避免前端组件出错
     return {
       accounts: [

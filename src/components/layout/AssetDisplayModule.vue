@@ -14,9 +14,9 @@
         </el-select>
       </div>
       <div class="table-container">
-        <el-table 
-          :data="selectedAccountData" 
-          style="width: 100%" 
+        <el-table
+          :data="selectedAccountData"
+          style="width: 100%"
           border
           :header-cell-style="headerStyle"
           :cell-style="cellStyle"
@@ -72,9 +72,9 @@
     <div class="asset-details">
       <div class="title">账户资产数据详情</div>
       <div class="table-stock">
-        <el-table 
-          :data="selectedStocks" 
-          style="width: 100%" 
+        <el-table
+          :data="selectedStocks"
+          style="width: 100%"
           border
           :header-cell-style="headerStyle"
           :cell-style="cellStyle"
@@ -118,7 +118,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { fetchAccountInfo } from '@/api/accountApi';
+import { fetchAccountInfo } from '@/api/accountApi.js';
 
 const accounts = ref([]);
 const selectedAccount = ref('');
@@ -151,12 +151,12 @@ onMounted(async () => {
       accounts.value = data.accounts.map((account) => {
         console.log('处理账户数据:', account.account_id);
         const initialTotalAsset = 10000000;
-        const totalReturnRate = initialTotalAsset !== 0 
-          ? ((account.total_asset - initialTotalAsset) / initialTotalAsset) * 100 
+        const totalReturnRate = initialTotalAsset !== 0
+          ? ((account.total_asset - initialTotalAsset) / initialTotalAsset) * 100
           : 0;
-        
-        const totalPositions = account.positions 
-          ? account.positions.reduce((sum, pos) => sum + pos.volume, 0) 
+
+        const totalPositions = account.positions
+          ? account.positions.reduce((sum, pos) => sum + pos.volume, 0)
           : 0;
 
         return {
@@ -165,7 +165,7 @@ onMounted(async () => {
           total_positions: totalPositions,
         };
       });
-      
+
       if (accounts.value.length > 0) {
         selectedAccount.value = accounts.value[0].account_id;
         console.log('已选择默认账户:', selectedAccount.value);
@@ -202,7 +202,7 @@ const selectedAccountData = computed(() => {
 const selectedStocks = computed(() => {
   const account = accounts.value.find((acc) => acc.account_id === selectedAccount.value);
   if (!account || !account.positions) return [];
-  
+
   // 根据股票市值降序排序，并选取前10条记录
   return account.positions
     .sort((a, b) => b.market_value - a.market_value) // 降序排序
@@ -222,7 +222,7 @@ const formatNumber = (value, decimals) => {
   if (value === undefined || value === null) return '0.'.padEnd(decimals + 2, '0');
   const num = Number(value);
   if (isNaN(num)) return '0.'.padEnd(decimals + 2, '0');
-  
+
   const parts = num.toFixed(decimals).toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
@@ -235,30 +235,21 @@ const formatNumber = (value, decimals) => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+  gap: 10px;
+  padding: 10px;
   box-sizing: border-box;
 }
 
-.asset-display-module, .asset-details {
-  width: 100%;
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
 .title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #333;
   text-align: center;
 }
 
 .select-container {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .table-container, .table-stock {
@@ -266,39 +257,31 @@ const formatNumber = (value, decimals) => {
   overflow: hidden;
 }
 
-.table-container {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 10px;
-}
-
-.table-stock {
-  overflow-y: auto;
-}
-
 .el-select {
   width: 100%;
 }
 
 .el-select .el-input__inner {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid #dcdcdc;
-  padding: 10px;
-  font-size: 14px;
+  padding: 5px;
+  font-size: 12px;
 }
 
 .el-table {
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
-  table-layout: auto;
 }
 
 .el-table th {
-  padding: 8px 0;
+  padding: 4px 0;
+  font-size: 12px;
+  background-color: #f5f5f5;
 }
 
 .el-table td {
-  padding: 8px 0;
+  padding: 4px 0;
+  font-size: 12px;
 }
 
 .even-row {
@@ -307,20 +290,5 @@ const formatNumber = (value, decimals) => {
 
 .el-table__body-wrapper {
   overflow-x: auto;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .left-aside {
-    flex-direction: column;
-  }
-  
-  .table-container, .table-stock {
-    height: auto;
-  }
-  
-  .el-table {
-    font-size: 12px;
-  }
 }
 </style>
