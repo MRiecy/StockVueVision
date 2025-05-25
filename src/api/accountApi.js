@@ -1,9 +1,16 @@
 // src/api/accountApi.js
 import axios from 'axios'
+import { 
+  mockAccountData, 
+  mockAssetCategoryData, 
+  mockRegionData, 
+  mockTimeData,
+  USE_MOCK_DATA 
+} from './mockData.js'
 
 // 创建一个axios实例
 const api = axios.create({
-  baseURL: '',
+  baseURL: 'http://localhost:8000',  // 添加后端服务器地址
   timeout: 30000, // 增加超时时间到30秒
   headers: {
     'Content-Type': 'application/json',
@@ -16,6 +23,19 @@ const api = axios.create({
  * @returns {Promise<Object>} 返回后端的 JSON 数据，例如 { accounts: [...] }
  */
 export async function fetchAccountInfo() {
+  // 如果启用模拟数据模式，直接返回模拟数据
+  if (USE_MOCK_DATA) {
+    console.log('✅ 使用模拟数据 - 账户信息');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          ...mockAccountData,
+          is_mock: true
+        });
+      }, 500); // 模拟网络延迟
+    });
+  }
+
   try {
     console.log('请求账户信息API...');
     const response = await api.get('/api/account-info/');
@@ -34,34 +54,12 @@ export async function fetchAccountInfo() {
       // 设置请求时发生错误
       console.error('请求设置错误:', error.message);
     }
-    
-    // 返回模拟数据以避免前端组件出错
+
+    // 回退到模拟数据
+    console.log('🔄 回退到模拟数据 - 账户信息');
     return {
-      accounts: [
-        {
-          account_id: 'DEMO000001',
-          account_type: 'STOCK',
-          cash: 1000000,
-          frozen_cash: 50000,
-          market_value: 2000000,
-          total_asset: 3000000,
-          positions: [
-            {
-              account_id: 'DEMO000001',
-              account_type: 'STOCK',
-              stock_code: '600000.SH',
-              volume: 10000,
-              can_use_volume: 10000,
-              open_price: 12.5,
-              market_value: 125000,
-              frozen_volume: 0,
-              on_road_volume: 0,
-              yesterday_volume: 10000,
-              avg_price: 11.8
-            }
-          ]
-        }
-      ]
+      ...mockAccountData,
+      is_mock: true
     };
   }
 }
@@ -71,12 +69,29 @@ export async function fetchAccountInfo() {
  * 此API用于账户总览页面的资产分类展示
  */
 export async function fetchAssetCategoryData() {
+  // 如果启用模拟数据模式，直接返回模拟数据
+  if (USE_MOCK_DATA) {
+    console.log('✅ 使用模拟数据 - 资产类别分布');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          ...mockAssetCategoryData,
+          is_mock: true
+        });
+      }, 300);
+    });
+  }
+
   try {
     const response = await api.get('/api/asset-category/');
     return response.data;
   } catch (error) {
     console.error('获取资产类别数据失败:', error);
-    return { categoryData: [] };
+    console.log('🔄 回退到模拟数据 - 资产类别分布');
+    return { 
+      ...mockAssetCategoryData,
+      is_mock: true 
+    };
   }
 }
 
@@ -85,12 +100,29 @@ export async function fetchAssetCategoryData() {
  * 此API用于账户总览页面的地区分布展示
  */
 export async function fetchRegionDataFromBackend() {
+  // 如果启用模拟数据模式，直接返回模拟数据
+  if (USE_MOCK_DATA) {
+    console.log('✅ 使用模拟数据 - 地区分布');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          ...mockRegionData,
+          is_mock: true
+        });
+      }, 400);
+    });
+  }
+
   try {
     const response = await api.get('/api/region-data/');
     return response.data;
   } catch (error) {
     console.error('获取地区分布数据失败:', error);
-    return { regionData: [] };
+    console.log('🔄 回退到模拟数据 - 地区分布');
+    return { 
+      ...mockRegionData,
+      is_mock: true 
+    };
   }
 }
 
@@ -99,12 +131,29 @@ export async function fetchRegionDataFromBackend() {
  * 此API用于账户总览页面的时间序列展示
  */
 export async function fetchTimeDataFromBackend(params) {
+  // 如果启用模拟数据模式，直接返回模拟数据
+  if (USE_MOCK_DATA) {
+    console.log('✅ 使用模拟数据 - 时间序列');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          ...mockTimeData,
+          is_mock: true
+        });
+      }, 600);
+    });
+  }
+
   try {
     const response = await api.get('/api/time-data/', { params });
     return response.data;
   } catch (error) {
     console.error('获取时间序列数据失败:', error);
-    return { timeData: [] };
+    console.log('🔄 回退到模拟数据 - 时间序列');
+    return { 
+      ...mockTimeData,
+      is_mock: true 
+    };
   }
 }
 
