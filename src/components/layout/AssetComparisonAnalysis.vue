@@ -180,25 +180,34 @@ export default {
     // 在组件挂载时获取数据
     onMounted(() => {
       console.log('组件已挂载，开始获取数据...');
-      fetchCategoryData();
+      // 使用模拟数据而不是实际API调用
+      categoryData.value = [
+        { stock_code: '600000.SH', asset_ratio: '7.6%', market_value: 216000, daily_return: '8.5%' },
+        { stock_code: '000001.SZ', asset_ratio: '8.0%', market_value: 228000, daily_return: '7.8%' },
+        { stock_code: '600519.SH', asset_ratio: '12.0%', market_value: 342000, daily_return: '9.2%' },
+        { stock_code: '000858.SZ', asset_ratio: '10.0%', market_value: 285000, daily_return: '6.5%' },
+        { stock_code: '002415.SZ', asset_ratio: '18.0%', market_value: 513000, daily_return: '7.0%' }
+      ];
     });
 
-    // 时间段数据
+    // 时间段数据 - 使用更真实的模拟数据
     const timeData = ref([
-      { timePeriod: '2024-01', totalAssets: 200000, returnRate: '4%', growthRate: '5%' },
-      { timePeriod: '2024-02', totalAssets: 220000, returnRate: '5%', growthRate: '10%' },
-      { timePeriod: '2024-03', totalAssets: 250000, returnRate: '6%', growthRate: '15%' },
-      { timePeriod: '2024-04', totalAssets: 280000, returnRate: '7%', growthRate: '20%' },
-      { timePeriod: '2024-05', totalAssets: 300000, returnRate: '8%', growthRate: '25%' },
+      { timePeriod: '2024-01', totalAssets: 3800000, returnRate: '5.2%', growthRate: '8.5%' },
+      { timePeriod: '2024-02', totalAssets: 3850000, returnRate: '5.5%', growthRate: '14.1%' },
+      { timePeriod: '2024-03', totalAssets: 3920000, returnRate: '6.1%', growthRate: '12.3%' },
+      { timePeriod: '2024-04', totalAssets: 3780000, returnRate: '4.8%', growthRate: '10.2%' },
+      { timePeriod: '2024-05', totalAssets: 3950000, returnRate: '6.5%', growthRate: '15.8%' },
+      { timePeriod: '2024-06', totalAssets: 4020000, returnRate: '7.2%', growthRate: '18.2%' }
     ]);
 
-    // 地区数据
+    // 地区数据 - 使用更真实的模拟数据
     const regionData = ref([
-      { region: '北京', totalAssets: 150000, returnRate: '5%', investmentRate: '30%' },
-      { region: '上海', totalAssets: 180000, returnRate: '6%', investmentRate: '35%' },
-      { region: '深圳', totalAssets: 200000, returnRate: '7%', investmentRate: '40%' },
-      { region: '广州', totalAssets: 120000, returnRate: '4%', investmentRate: '25%' },
-      { region: '杭州', totalAssets: 100000, returnRate: '3%', investmentRate: '20%' },
+      { region: '上海', totalAssets: 820000, returnRate: '8.5%', investmentRate: '28.8%' },
+      { region: '深圳', totalAssets: 712500, returnRate: '7.8%', investmentRate: '25.0%' },
+      { region: '北京', totalAssets: 570000, returnRate: '9.2%', investmentRate: '20.0%' },
+      { region: '广州', totalAssets: 342000, returnRate: '6.5%', investmentRate: '12.0%' },
+      { region: '杭州', totalAssets: 228000, returnRate: '7.0%', investmentRate: '8.0%' },
+      { region: '成都', totalAssets: 114000, returnRate: '5.8%', investmentRate: '4.0%' }
     ]);
 
     const isCategoryChartVisible = ref(false);
@@ -219,38 +228,95 @@ export default {
         title: {
           text: '资产类别对比分析',
           left: 'center',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
+          backgroundColor: 'rgba(26, 31, 58, 0.95)',
+          borderColor: 'rgba(64, 224, 255, 0.3)',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         legend: {
           data: ['资产占比', '股票市值', '收益率'],
           bottom: 0,
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         xAxis: {
           type: 'category',
           data: categoryData.value.map(item => item.stock_code),
+          axisLabel: {
+            color: '#ffffff'
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(64, 224, 255, 0.3)'
+            }
+          }
         },
         yAxis: [
           {
             type: 'value',
             name: '资产占比',
             position: 'left',
-            axisLabel: { formatter: '{value}%' },
+            axisLabel: { 
+              formatter: '{value}%',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            },
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.1)'
+              }
+            }
           },
           {
             type: 'value',
             name: '股票市值',
             position: 'right',
-            axisLabel: { formatter: '{value} 元' },
+            axisLabel: { 
+              formatter: '{value} 元',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            }
           },
           {
             type: 'value',
             name: '收益率',
             position: 'right',
             offset: 80,
-            axisLabel: { formatter: '{value}%' },
+            axisLabel: { 
+              formatter: '{value}%',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            }
           }
         ],
         series: [
@@ -292,33 +358,78 @@ export default {
       chart.setOption({
         title: {
           text: '时间段对比分析',
-
           left: 'center',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'line' },
+          backgroundColor: 'rgba(26, 31, 58, 0.95)',
+          borderColor: 'rgba(64, 224, 255, 0.3)',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         legend: {
           data: ['总资产', '收益率', '增长率'],
           bottom: 0,
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         xAxis: {
           type: 'category',
           data: timeData.value.map(item => item.timePeriod),
+          axisLabel: {
+            color: '#ffffff'
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(64, 224, 255, 0.3)'
+            }
+          }
         },
         yAxis: [
           {
             type: 'value',
             name: '总资产',
             position: 'left',
-            axisLabel: { formatter: '{value} 元' },
+            axisLabel: { 
+              formatter: '{value} 元',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            },
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.1)'
+              }
+            }
           },
           {
             type: 'value',
             name: '收益率',
             position: 'right',
-            axisLabel: { formatter: '{value}%' },
+            axisLabel: { 
+              formatter: '{value}%',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            }
           },
         ],
         series: [
@@ -357,33 +468,78 @@ export default {
       chart.setOption({
         title: {
           text: '地区对比分析',
-
           left: 'center',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'line' },
+          backgroundColor: 'rgba(26, 31, 58, 0.95)',
+          borderColor: 'rgba(64, 224, 255, 0.3)',
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         legend: {
           data: ['总资产', '收益率', '投资率'],
           bottom: 0,
+          textStyle: {
+            color: '#ffffff'
+          }
         },
         xAxis: {
           type: 'category',
           data: regionData.value.map(item => item.region),
+          axisLabel: {
+            color: '#ffffff'
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(64, 224, 255, 0.3)'
+            }
+          }
         },
         yAxis: [
           {
             type: 'value',
             name: '总资产',
             position: 'left',
-            axisLabel: { formatter: '{value} 元' },
+            axisLabel: { 
+              formatter: '{value} 元',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            },
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.1)'
+              }
+            }
           },
           {
             type: 'value',
             name: '收益率',
             position: 'right',
-            axisLabel: { formatter: '{value}%' },
+            axisLabel: { 
+              formatter: '{value}%',
+              color: '#ffffff'
+            },
+            nameTextStyle: {
+              color: '#ffffff'
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(64, 224, 255, 0.3)'
+              }
+            }
           },
         ],
         series: [
@@ -418,55 +574,67 @@ export default {
 
     // 切换图表显示
     const toggleCategoryChart = () => {
-  isCategoryChartVisible.value = !isCategoryChartVisible.value;
-  if (isCategoryChartVisible.value) {
-    nextTick(() => {
-      initCategoryChart();
-    });
-  } else {
-    // 销毁图表实例
-    if (categoryChart.value) {
-      const chart = echarts.getInstanceByDom(categoryChart.value);
-      if (chart) {
-        chart.dispose();
+      isCategoryChartVisible.value = !isCategoryChartVisible.value;
+      if (isCategoryChartVisible.value) {
+        nextTick(() => {
+          initCategoryChart();
+        });
+      } else {
+        // 销毁图表实例
+        if (categoryChart.value) {
+          const chart = echarts.getInstanceByDom(categoryChart.value);
+          if (chart) {
+            chart.dispose();
+          }
+        }
       }
-    }
-  }
-};
+    };
 
     const toggleTimeChart = () => {
-  isTimeChartVisible.value = !isTimeChartVisible.value;
-  if (isTimeChartVisible.value) {
-    nextTick(() => {
-      initTimeChart();
-    });
-  } else {
-    // 销毁图表实例
-    if (timeChart.value) {
-      const chart = echarts.getInstanceByDom(timeChart.value);
-      if (chart) {
-        chart.dispose();
+      isTimeChartVisible.value = !isTimeChartVisible.value;
+      if (isTimeChartVisible.value) {
+        nextTick(() => {
+          initTimeChart();
+        });
+      } else {
+        // 销毁图表实例
+        if (timeChart.value) {
+          const chart = echarts.getInstanceByDom(timeChart.value);
+          if (chart) {
+            chart.dispose();
+          }
+        }
       }
-    }
-  }
-};
+    };
 
-     const toggleRegionChart = () => {
-  isRegionChartVisible.value = !isRegionChartVisible.value;
-  if (isRegionChartVisible.value) {
-    nextTick(() => {
-      initRegionChart();
-    });
-  } else {
-    // 销毁图表实例
-    if (regionChart.value) {
-      const chart = echarts.getInstanceByDom(regionChart.value);
-      if (chart) {
-        chart.dispose();
+    const toggleRegionChart = () => {
+      isRegionChartVisible.value = !isRegionChartVisible.value;
+      if (isRegionChartVisible.value) {
+        nextTick(() => {
+          initRegionChart();
+        });
+      } else {
+        // 销毁图表实例
+        if (regionChart.value) {
+          const chart = echarts.getInstanceByDom(regionChart.value);
+          if (chart) {
+            chart.dispose();
+          }
+        }
       }
-    }
-  }
-};
+    };
+
+    // 添加格式化货币的方法
+    const formatCurrency = (value) => {
+      if (value === undefined || value === null) return '¥0.00';
+      const num = Number(value);
+      if (isNaN(num)) return '¥0.00';
+      
+      return '¥' + num.toLocaleString('zh-CN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    };
 
     return {
       categoryChart,
@@ -484,6 +652,7 @@ export default {
       isLoading,
       hasError,
       errorMessage,
+      formatCurrency
     };
   },
 };
@@ -491,18 +660,25 @@ export default {
 
 <style scoped>
 .asset-comparison-analysis {
-  background-color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(64, 224, 255, 0.2);
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(64, 224, 255, 0.1);
   margin-bottom: 20px;
   width: 100%;
+  color: #000000;
 }
 
 .loading-state {
   padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
+  background: rgba(64, 224, 255, 0.1);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 6px;
+  color: #000000;
 }
 
 .error-state {
@@ -511,6 +687,13 @@ export default {
 
 .error-state :deep(.el-alert) {
   margin: 0;
+  background: rgba(255, 107, 107, 0.1) !important;
+  border: 1px solid rgba(255, 107, 107, 0.3) !important;
+  color: #ffffff !important;
+}
+
+.error-state :deep(.el-alert .el-alert__title) {
+  color: #ff6b6b !important;
 }
 
 .analysis-module {
@@ -522,7 +705,8 @@ export default {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 10px;
-  color: #333333;
+  color: #000000;
+  text-shadow: 0 0 8px rgba(64, 224, 255, 0.6);
 }
 
 .module-content {
@@ -531,18 +715,30 @@ export default {
   width: 100%;
 }
 
-.module-button {
-  background-color: #409eff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+.module-content h4 {
+  color: #000000;
+  text-shadow: 0 0 6px rgba(64, 224, 255, 0.5);
   margin-bottom: 10px;
 }
 
+.module-button {
+  background: linear-gradient(135deg, rgba(64, 224, 255, 0.3), rgba(30, 144, 255, 0.3));
+  color: #ffffff;
+  border: 1px solid rgba(64, 224, 255, 0.5);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(64, 224, 255, 0.2);
+  text-shadow: 0 0 5px rgba(64, 224, 255, 0.5);
+}
+
 .module-button:hover {
-  background-color: #66b1ff;
+  background: linear-gradient(135deg, rgba(64, 224, 255, 0.5), rgba(30, 144, 255, 0.5));
+  border-color: rgba(64, 224, 255, 0.8);
+  box-shadow: 0 0 25px rgba(64, 224, 255, 0.4);
+  transform: translateY(-2px);
 }
 
 .module-table {
@@ -553,10 +749,63 @@ export default {
 .analysis-chart {
   margin-bottom: 20px;
   width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(64, 224, 255, 0.1);
+  border-radius: 6px;
+  padding: 10px;
 }
 
 .analysis-chart > div {
   width: 100%;
   height: 400px;
+}
+
+/* Element UI组件深色主题适配 */
+:deep(.el-table) {
+  background: transparent !important;
+  color: #000000 !important;
+  border: 1px solid rgba(64, 224, 255, 0.2) !important;
+  border-radius: 6px !important;
+}
+
+:deep(.el-table th.el-table__cell) {
+  background: rgba(64, 224, 255, 0.2) !important;
+  color: #000000 !important;
+  border-bottom: 1px solid rgba(64, 224, 255, 0.3) !important;
+  font-weight: bold !important;
+}
+
+:deep(.el-table td.el-table__cell) {
+  background: transparent !important;
+  color: #000000 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:deep(.el-table tr:hover td) {
+  background: rgba(64, 224, 255, 0.1) !important;
+}
+
+:deep(.el-table__border-left-patch) {
+  background: rgba(64, 224, 255, 0.2) !important;
+}
+
+:deep(.el-table__border-bottom-patch) {
+  background: rgba(64, 224, 255, 0.2) !important;
+}
+
+/* Skeleton组件适配 */
+:deep(.el-skeleton) {
+  background: transparent !important;
+}
+
+:deep(.el-skeleton__item) {
+  background: rgba(64, 224, 255, 0.1) !important;
+}
+
+:deep(.el-skeleton.is-animated .el-skeleton__item) {
+  background: linear-gradient(90deg, 
+    rgba(64, 224, 255, 0.1) 25%, 
+    rgba(64, 224, 255, 0.3) 37%, 
+    rgba(64, 224, 255, 0.1) 63%) !important;
 }
 </style>
