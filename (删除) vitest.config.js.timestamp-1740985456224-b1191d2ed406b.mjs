@@ -1,0 +1,1 @@
+var __vite_injected_original_import_meta_url = "file:///E:/VS_C++_project/Web Project/StockVueVision";
