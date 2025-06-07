@@ -22,7 +22,6 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import ChartSection from './ChartSection.vue';
 
 export default {
@@ -33,47 +32,7 @@ export default {
   setup() {
     const keyMetrics = ref([]);
 
-    const fetchExecutionResult = async () => {
-      try {
-        const response = await axios.get('/api/execution-result');
-        keyMetrics.value = response.data.keyMetrics;
-      } catch (error) {
-        console.error('获取策略执行结果失败：', error);
-        // 使用模拟数据
-        keyMetrics.value = [
-          { 
-            metricName: '总收益率', 
-            metricValue: '+8.2%', 
-            description: '当前策略累计收益率' 
-          },
-          { 
-            metricName: '年化收益率', 
-            metricValue: '+12.5%', 
-            description: '年化投资回报率' 
-          },
-          { 
-            metricName: '最大回撤', 
-            metricValue: '-3.8%', 
-            description: '历史最大回撤幅度' 
-          },
-          { 
-            metricName: '夏普比率', 
-            metricValue: '1.85', 
-            description: '风险调整后收益指标' 
-          },
-          { 
-            metricName: '胜率', 
-            metricValue: '68.5%', 
-            description: '盈利交易占比' 
-          },
-          { 
-            metricName: '交易次数', 
-            metricValue: '127', 
-            description: '累计执行交易次数' 
-          }
-        ];
-      }
-    };
+
 
     onMounted(() => {
       // 直接使用模拟数据

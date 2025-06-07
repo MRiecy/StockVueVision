@@ -259,4 +259,4 @@ export const mockRegionComparisonData = {
 };
 
 // 导出是否使用模拟数据的标志
-export const USE_MOCK_DATA = true; 
+export const USE_MOCK_DATA = false; 

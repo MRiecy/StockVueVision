@@ -94,8 +94,31 @@ export default {
   height: calc(100vh - 120px);
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 2;
+}
+
+/* 主页面滚动条样式 */
+.display-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.display-page::-webkit-scrollbar-track {
+  background: rgba(64, 224, 255, 0.1);
+  border-radius: 3px;
+}
+
+.display-page::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(64, 224, 255, 0.6), rgba(30, 144, 255, 0.4));
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.display-page::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(64, 224, 255, 0.8), rgba(30, 144, 255, 0.6));
+  box-shadow: 0 0 12px rgba(64, 224, 255, 0.5);
 }
 
 /* 网格背景装饰 */
@@ -122,7 +145,7 @@ export default {
 .content-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100%; /* 最小高度100%，内容可以超出 */
   display: flex;
   gap: 20px;
   z-index: 3;
@@ -185,13 +208,13 @@ export default {
 }
 
 .strategy-intro-panel {
-  height: 42%;
-  min-height: 320px;
+  flex: 0 1 auto; /* 根据内容自适应高度 */
+  min-height: 320px; /* 保持最小高度 */
 }
 
 .strategy-result-panel {
-  height: 58%;
-  min-height: 480px;
+  flex: 0 1 auto; /* 根据内容自适应高度 */
+  min-height: 480px; /* 保持最小高度 */
 }
 
 /* 响应式设计 */
@@ -316,8 +339,28 @@ export default {
 .panel-content {
   flex: 1;
   padding: 20px;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
+}
+
+/* 面板内容滚动条样式 */
+.panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: rgba(64, 224, 255, 0.1);
+  border-radius: 2px;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: rgba(64, 224, 255, 0.4);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 224, 255, 0.6);
 }
 
 /* 面板底部 */

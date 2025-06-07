@@ -105,19 +105,3 @@ export async function fetchWeeklyComparisonData(accountId = 'DEMO000001') {
   }
 }
 
-/**
- * 获取日期所在的ISO周数
- * @param {Date} date 日期
- * @returns {string} 格式化的ISO周数，如"01"
- */
-function getWeekNumber(date) {
-  // ISO周从1开始，获取日期所在的ISO周
-  const temp = new Date(date);
-  temp.setHours(0, 0, 0, 0);
-  temp.setDate(temp.getDate() + 3 - (temp.getDay() + 6) % 7);
-  const week1 = new Date(temp.getFullYear(), 0, 4);
-  const weekNum = 1 + Math.round(((temp.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-  
-  // 返回格式化的周数，例如"01"而不是"1"
-  return weekNum.toString().padStart(2, '0');
-} 

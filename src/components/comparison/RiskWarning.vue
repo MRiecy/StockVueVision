@@ -14,6 +14,92 @@
     </div>
 
     <div class="warning-content">
+      <!-- 行业偏离度监控 -->
+      <div class="sector-deviation-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">行业偏离度监控</h3>
+          <div class="threshold-info">
+            <span>配置阈值: ≤{{ sectorThreshold }}%</span>
+            <span>偏离阈值: ±{{ deviationThreshold }}%</span>
+          </div>
+        </div>
+        
+        <div class="sector-list">
+          <div 
+            v-for="(sector, index) in sectorData" 
+            :key="index"
+            class="sector-item"
+            :class="getSectorWarningClass(sector)"
+          >
+            <div class="sector-info">
+              <div class="sector-name">{{ sector.name }}</div>
+              <div class="sector-details">
+                <span class="allocation">配置: {{ sector.allocation }}%</span>
+                <span class="deviation" :class="getDeviationClass(sector.deviation)">
+                  偏离: {{ sector.deviation > 0 ? '+' : '' }}{{ sector.deviation }}%
+                </span>
+              </div>
+            </div>
+            <div class="sector-progress">
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill" 
+                  :style="{ width: sector.allocation + '%' }"
+                  :class="getSectorProgressClass(sector)"
+                ></div>
+              </div>
+              <div class="benchmark-line" :style="{ left: sector.benchmark + '%' }"></div>
+            </div>
+            <div v-if="isSectorWarning(sector)" class="warning-indicator">
+              <i class="warning-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格偏离度监控 -->
+      <div class="style-deviation-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">风格偏离度监控 (CNE6模型)</h3>
+          <div class="risk-concentration">
+            风险集中度: <span :class="getConcentrationClass()">{{ styleConcentration }}%</span>
+          </div>
+        </div>
+        
+        <div class="style-factors">
+          <div 
+            v-for="(factor, index) in styleFactors" 
+            :key="index"
+            class="factor-item"
+            :class="getFactorWarningClass(factor)"
+          >
+            <div class="factor-header">
+              <span class="factor-name">{{ factor.name }}</span>
+              <span class="factor-exposure" :class="getExposureClass(factor.exposure)">
+                {{ factor.exposure > 0 ? '+' : '' }}{{ factor.exposure.toFixed(2) }}
+              </span>
+            </div>
+            <div class="factor-details">
+              <div class="exposure-bar">
+                <div 
+                  class="exposure-fill" 
+                  :style="getExposureBarStyle(factor.exposure)"
+                  :class="getExposureBarClass(factor.exposure)"
+                ></div>
+                <div class="zero-line"></div>
+              </div>
+              <div class="factor-meta">
+                <span class="portfolio-weight">组合暴露: {{ factor.portfolioExposure }}%</span>
+                <span class="benchmark-weight">基准暴露: {{ factor.benchmarkExposure }}%</span>
+              </div>
+            </div>
+            <div v-if="isFactorWarning(factor)" class="warning-indicator">
+              <i class="warning-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="warning-list">
         <div 
           v-for="(warning, index) in warnings" 
@@ -102,7 +188,92 @@ export default {
   data() {
     return {
       currentTime: '',
-      timer: null
+      timer: null,
+      // 行业监控阈值设置
+      sectorThreshold: 20, // 单一行业权重阈值
+      deviationThreshold: 5, // 偏离度阈值
+      
+      // 行业配置数据
+      sectorData: [
+        { name: '信息技术', allocation: 25.3, benchmark: 18.5, deviation: 6.8 },
+        { name: '医疗保健', allocation: 18.7, benchmark: 15.2, deviation: 3.5 },
+        { name: '金融服务', allocation: 15.2, benchmark: 22.1, deviation: -6.9 },
+        { name: '消费品', allocation: 12.8, benchmark: 14.3, deviation: -1.5 },
+        { name: '工业', allocation: 10.5, benchmark: 12.7, deviation: -2.2 },
+        { name: '材料', allocation: 8.2, benchmark: 7.8, deviation: 0.4 },
+        { name: '能源', allocation: 5.1, benchmark: 6.2, deviation: -1.1 },
+        { name: '公用事业', allocation: 4.2, benchmark: 3.2, deviation: 1.0 }
+      ],
+      
+      // 风格因子数据 (CNE6模型)
+      styleFactors: [
+        { 
+          name: '成长', 
+          exposure: 0.42, 
+          portfolioExposure: 35.8, 
+          benchmarkExposure: 28.2,
+          threshold: 0.3
+        },
+        { 
+          name: '价值', 
+          exposure: -0.28, 
+          portfolioExposure: 22.1, 
+          benchmarkExposure: 28.9,
+          threshold: 0.3
+        },
+        { 
+          name: '盈利质量', 
+          exposure: 0.15, 
+          portfolioExposure: 31.4, 
+          benchmarkExposure: 28.7,
+          threshold: 0.25
+        },
+        { 
+          name: '规模', 
+          exposure: -0.18, 
+          portfolioExposure: 24.3, 
+          benchmarkExposure: 28.2,
+          threshold: 0.25
+        },
+        { 
+          name: '动量', 
+          exposure: 0.22, 
+          portfolioExposure: 33.5, 
+          benchmarkExposure: 29.1,
+          threshold: 0.3
+        },
+        { 
+          name: '波动率', 
+          exposure: -0.12, 
+          portfolioExposure: 26.8, 
+          benchmarkExposure: 29.2,
+          threshold: 0.2
+        },
+        { 
+          name: 'Beta', 
+          exposure: 0.08, 
+          portfolioExposure: 30.1, 
+          benchmarkExposure: 28.5,
+          threshold: 0.2
+        },
+        { 
+          name: '流动性', 
+          exposure: 0.05, 
+          portfolioExposure: 29.8, 
+          benchmarkExposure: 28.9,
+          threshold: 0.15
+        },
+        { 
+          name: '杠杆', 
+          exposure: -0.35, 
+          portfolioExposure: 18.7, 
+          benchmarkExposure: 26.4,
+          threshold: 0.25
+        }
+      ],
+      
+      // 风格风险集中度
+      styleConcentration: 68.5
     };
   },
   mounted() {
@@ -180,6 +351,72 @@ export default {
       console.log('刷新预警状态');
       // 这里可以实现刷新预警数据的逻辑
       this.$emit('refresh');
+    },
+    
+    // 行业监控相关方法
+    getSectorWarningClass(sector) {
+      if (this.isSectorWarning(sector)) {
+        if (sector.allocation > this.sectorThreshold) return 'sector-overweight';
+        if (Math.abs(sector.deviation) > this.deviationThreshold) return 'sector-deviation';
+      }
+      return '';
+    },
+    
+    isSectorWarning(sector) {
+      return sector.allocation > this.sectorThreshold || 
+             Math.abs(sector.deviation) > this.deviationThreshold;
+    },
+    
+    getDeviationClass(deviation) {
+      if (Math.abs(deviation) > this.deviationThreshold) {
+        return deviation > 0 ? 'deviation-positive-high' : 'deviation-negative-high';
+      }
+      return deviation > 0 ? 'deviation-positive' : 'deviation-negative';
+    },
+    
+    getSectorProgressClass(sector) {
+      if (sector.allocation > this.sectorThreshold) return 'progress-danger';
+      if (Math.abs(sector.deviation) > this.deviationThreshold) return 'progress-warning';
+      return 'progress-normal';
+    },
+    
+    // 风格监控相关方法
+    getFactorWarningClass(factor) {
+      return this.isFactorWarning(factor) ? 'factor-warning' : '';
+    },
+    
+    isFactorWarning(factor) {
+      return Math.abs(factor.exposure) > factor.threshold;
+    },
+    
+    getExposureClass(exposure) {
+      if (Math.abs(exposure) > 0.3) {
+        return exposure > 0 ? 'exposure-high-positive' : 'exposure-high-negative';
+      }
+      return exposure > 0 ? 'exposure-positive' : 'exposure-negative';
+    },
+    
+    getExposureBarStyle(exposure) {
+      const maxWidth = 50; // 最大宽度50%
+      const width = Math.min(Math.abs(exposure) * 100, maxWidth);
+      const left = exposure > 0 ? 50 : (50 - width);
+      return {
+        width: width + '%',
+        left: left + '%'
+      };
+    },
+    
+    getExposureBarClass(exposure) {
+      if (Math.abs(exposure) > 0.3) {
+        return exposure > 0 ? 'exposure-bar-high-positive' : 'exposure-bar-high-negative';
+      }
+      return exposure > 0 ? 'exposure-bar-positive' : 'exposure-bar-negative';
+    },
+    
+    getConcentrationClass() {
+      if (this.styleConcentration > 80) return 'concentration-high';
+      if (this.styleConcentration > 60) return 'concentration-medium';
+      return 'concentration-normal';
     }
   }
 };
@@ -192,6 +429,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .warning-header {
@@ -551,21 +790,25 @@ export default {
 }
 
 /* 滚动条样式 */
+.risk-warning::-webkit-scrollbar,
 .warning-list::-webkit-scrollbar {
   width: 4px;
 }
 
+.risk-warning::-webkit-scrollbar-track,
 .warning-list::-webkit-scrollbar-track {
   background: rgba(64, 224, 255, 0.1);
   border-radius: 2px;
 }
 
+.risk-warning::-webkit-scrollbar-thumb,
 .warning-list::-webkit-scrollbar-thumb {
   background: rgba(64, 224, 255, 0.4);
   border-radius: 2px;
   transition: background 0.3s ease;
 }
 
+.risk-warning::-webkit-scrollbar-thumb:hover,
 .warning-list::-webkit-scrollbar-thumb:hover {
   background: rgba(64, 224, 255, 0.6);
 }
@@ -588,5 +831,334 @@ export default {
   border-color: rgba(64, 224, 255, 0.8) !important;
   box-shadow: 0 0 15px rgba(64, 224, 255, 0.4) !important;
   transform: translateY(-1px);
+}
+
+/* 行业偏离度监控样式 */
+.sector-deviation-panel,
+.style-deviation-panel {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 8px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(64, 224, 255, 0.1);
+}
+
+.panel-title {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.threshold-info {
+  display: flex;
+  gap: 12px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.risk-concentration {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.concentration-normal { color: #00ff88; }
+.concentration-medium { color: #feca57; }
+.concentration-high { color: #ff6b6b; }
+
+.sector-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sector-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(64, 224, 255, 0.1);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sector-item:hover {
+  border-color: rgba(64, 224, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.sector-item.sector-overweight {
+  border-left: 3px solid #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
+}
+
+.sector-item.sector-deviation {
+  border-left: 3px solid #feca57;
+  background: rgba(254, 202, 87, 0.05);
+}
+
+.sector-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sector-name {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sector-details {
+  display: flex;
+  gap: 12px;
+  font-size: 9px;
+}
+
+.allocation {
+  color: #40e0ff;
+}
+
+.deviation {
+  font-weight: 500;
+}
+
+.deviation-positive { color: #ff6b6b; }
+.deviation-negative { color: #48dbfb; }
+.deviation-positive-high { 
+  color: #ff6b6b; 
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(255, 107, 107, 0.5);
+}
+.deviation-negative-high { 
+  color: #48dbfb; 
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(72, 219, 251, 0.5);
+}
+
+.sector-progress {
+  flex: 2;
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.progress-normal {
+  background: linear-gradient(90deg, #00ff88, #40e0ff);
+}
+
+.progress-warning {
+  background: linear-gradient(90deg, #feca57, #ff9ff3);
+}
+
+.progress-danger {
+  background: linear-gradient(90deg, #ff6b6b, #feca57);
+}
+
+.benchmark-line {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 12px;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.warning-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.2);
+  animation: warningPulse 1.5s ease-in-out infinite;
+}
+
+.warning-indicator .warning-icon {
+  width: 10px;
+  height: 10px;
+  background: #ff6b6b;
+  border-radius: 50%;
+}
+
+@keyframes warningPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+/* 风格偏离度监控样式 */
+.style-factors {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.factor-item {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(64, 224, 255, 0.1);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.factor-item:hover {
+  border-color: rgba(64, 224, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.factor-item.factor-warning {
+  border-left: 3px solid #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
+}
+
+.factor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.factor-name {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.factor-exposure {
+  font-size: 11px;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.exposure-positive { color: #ff6b6b; }
+.exposure-negative { color: #48dbfb; }
+.exposure-high-positive { 
+  color: #ff6b6b; 
+  text-shadow: 0 0 4px rgba(255, 107, 107, 0.5);
+  animation: exposurePulse 2s ease-in-out infinite;
+}
+.exposure-high-negative { 
+  color: #48dbfb; 
+  text-shadow: 0 0 4px rgba(72, 219, 251, 0.5);
+  animation: exposurePulse 2s ease-in-out infinite;
+}
+
+@keyframes exposurePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.factor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exposure-bar {
+  position: relative;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.exposure-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.exposure-bar-positive {
+  background: linear-gradient(90deg, #ff6b6b, #ff9ff3);
+}
+
+.exposure-bar-negative {
+  background: linear-gradient(90deg, #48dbfb, #40e0ff);
+}
+
+.exposure-bar-high-positive {
+  background: linear-gradient(90deg, #ff6b6b, #feca57);
+  box-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
+}
+
+.exposure-bar-high-negative {
+  background: linear-gradient(90deg, #48dbfb, #00ff88);
+  box-shadow: 0 0 8px rgba(72, 219, 251, 0.6);
+}
+
+.zero-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(-50%);
+}
+
+.factor-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.portfolio-weight {
+  color: #40e0ff;
+}
+
+.benchmark-weight {
+  color: rgba(255, 255, 255, 0.5);
 }
 </style> 

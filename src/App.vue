@@ -16,7 +16,7 @@ import MenuBar from '@/components/layout/MenuBar.vue';
 import MockDataIndicator from '@/components/layout/MockDataIndicator.vue';
 
 // 生成随机粒子样式
-const getParticleStyle = (index) => {
+const getParticleStyle = () => {
   const size = Math.random() * 3 + 1;
   const animationDuration = Math.random() * 20 + 10;
   const left = Math.random() * 100;

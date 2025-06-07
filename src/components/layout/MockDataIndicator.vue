@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div v-if="showIndicator" class="mock-data-indicator">
     <div class="indicator-content">
       <div class="indicator-icon">

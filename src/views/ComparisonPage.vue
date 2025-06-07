@@ -146,16 +146,64 @@ export default {
       ],
       riskWarnings: [
         { 
+          level: 'high', 
+          message: '股票A波动率异常偏高', 
+          time: '2025-01-25 15:45',
+          action: '建议立即减仓'
+        },
+        { 
+          level: 'medium', 
+          message: '市场整体下跌风险增加', 
+          time: '2025-01-25 15:30',
+          action: '建议观望'
+        },
+        { 
           level: 'low', 
           message: '市场波动率略高', 
           time: '2025-01-25 14:30',
           action: '建议适当降低仓位'
         },
         { 
+          level: 'high', 
+          message: 'VaR值超出预警阈值', 
+          time: '2025-01-25 14:15',
+          action: '紧急风控措施'
+        },
+        { 
+          level: 'medium', 
+          message: '行业板块相关性异常', 
+          time: '2025-01-25 13:50',
+          action: '分散投资'
+        },
+        { 
+          level: 'low', 
+          message: '流动性风险轻微上升', 
+          time: '2025-01-25 13:20',
+          action: '监控市场深度'
+        },
+        { 
           level: 'normal', 
           message: '系统运行正常', 
           time: '2025-01-25 12:00',
           action: '继续监控'
+        },
+        { 
+          level: 'medium', 
+          message: '外汇汇率波动加剧', 
+          time: '2025-01-25 11:45',
+          action: '对冲外汇风险'
+        },
+        { 
+          level: 'high', 
+          message: '单一资产集中度过高', 
+          time: '2025-01-25 11:30',
+          action: '立即分散投资'
+        },
+        { 
+          level: 'low', 
+          message: '技术指标偏离均值', 
+          time: '2025-01-25 11:15',
+          action: '密切关注'
         }
       ]
     };
@@ -181,8 +229,31 @@ export default {
   height: calc(100vh - 120px);
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 禁止水平滚动 */
   z-index: 2;
+}
+
+/* 主页面滚动条样式 */
+.comparison-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comparison-page::-webkit-scrollbar-track {
+  background: rgba(64, 224, 255, 0.1);
+  border-radius: 3px;
+}
+
+.comparison-page::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(64, 224, 255, 0.6), rgba(30, 144, 255, 0.4));
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.comparison-page::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(64, 224, 255, 0.8), rgba(30, 144, 255, 0.6));
+  box-shadow: 0 0 12px rgba(64, 224, 255, 0.5);
 }
 
 /* 网格背景装饰 */
@@ -209,7 +280,7 @@ export default {
 .content-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100%; /* 最小高度100%，内容可以超出 */
   display: flex;
   gap: 20px;
   z-index: 3;
@@ -356,7 +427,8 @@ export default {
 }
 
 .content-row {
-  flex: 1;
+  flex: 0 1 auto; /* 根据内容自适应高度 */
+  min-height: 300px; /* 设置最小高度保证美观 */
   display: flex;
   gap: 20px;
 }
@@ -442,8 +514,28 @@ export default {
 .panel-content {
   flex: 1;
   padding: 15px;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
+}
+
+/* 面板内容滚动条样式 */
+.panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: rgba(64, 224, 255, 0.1);
+  border-radius: 2px;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: rgba(64, 224, 255, 0.4);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 224, 255, 0.6);
 }
 
 /* 浮动装饰元素 */
