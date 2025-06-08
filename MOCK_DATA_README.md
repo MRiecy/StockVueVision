@@ -14,7 +14,7 @@
 - **时间序列**: 12个月的历史资产变化趋势
 - **年度对比**: 2022-2024年的年度投资表现
 - **每周对比**: 最近6周的投资变化情况
-- **地区对比**: 各地区投资回报率对比分析
+- **交易所对比**: 各交易所投资回报率对比分析
 
 ### 📊 模拟数据内容
 
@@ -69,7 +69,7 @@ export const USE_MOCK_DATA = true;
 - `mockRegionData`: 地区分布数据
 - `mockTimeData`: 时间序列数据
 - `mockYearlyComparisonData`: 年度对比数据
-- `mockRegionComparisonData`: 地区对比数据
+- `mockRegionComparisonData`: 交易所对比数据
 
 ## 页面展示效果
 

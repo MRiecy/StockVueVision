@@ -71,9 +71,30 @@ export default {
       return {
         tooltip: {
           trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
-          textStyle: { color: '#ffffff' }
+          textStyle: { color: '#ffffff' },
+          formatter: function(params) {
+            let tooltip = `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">日期: ${params[0].axisValueLabel}</div>`;
+            params.forEach(param => {
+              const color = param.color;
+              const seriesName = param.seriesName;
+              const value = param.value.toFixed(2);
+              
+              tooltip += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${seriesName}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}%</span>
+              </div>`;
+            });
+            return tooltip;
+          }
         },
         legend: {
           data: ['股票A', '股票B', '基准指数'],
@@ -112,7 +133,17 @@ export default {
             data: this.generateRandomData(30, 15, 5),
             smooth: true,
             itemStyle: { color: '#40e0ff' },
-            lineStyle: { width: 2 }
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#66e6ff',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '股票B',
@@ -120,7 +151,17 @@ export default {
             data: this.generateRandomData(30, 12, 8),
             smooth: true,
             itemStyle: { color: '#ff6b6b' },
-            lineStyle: { width: 2 }
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ff8a8a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '基准指数',
@@ -128,7 +169,17 @@ export default {
             data: this.generateRandomData(30, 10, 3),
             smooth: true,
             itemStyle: { color: '#feca57' },
-            lineStyle: { width: 2 }
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#fed97a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           }
         ]
       };
@@ -138,9 +189,30 @@ export default {
       return {
         tooltip: {
           trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
-          textStyle: { color: '#ffffff' }
+          textStyle: { color: '#ffffff' },
+          formatter: function(params) {
+            let tooltip = `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">时间: ${params[0].axisValueLabel}</div>`;
+            params.forEach(param => {
+              const color = param.color;
+              const seriesName = param.seriesName;
+              const value = param.value.toFixed(2);
+              
+              tooltip += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${seriesName}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}%</span>
+              </div>`;
+            });
+            return tooltip;
+          }
         },
         legend: {
           data: ['近1月', '近3月', '近6月', '近1年'],
@@ -207,7 +279,19 @@ export default {
           trigger: 'item',
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
-          textStyle: { color: '#ffffff' }
+          textStyle: { color: '#ffffff' },
+          formatter: function(params) {
+            const name = params.name;
+            const value = params.value;
+            const percent = params.percent;
+            
+            return `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">交易所配置</div>
+              <div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${params.color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${name}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}% (${percent}%)</span>
+              </div>`;
+          }
         },
         legend: {
           data: ['A股', '港股', '美股', '欧股'],
@@ -216,7 +300,7 @@ export default {
         },
         series: [
           {
-            name: '地区配置',
+            name: '交易所配置',
             type: 'pie',
             radius: ['30%', '70%'],
             center: ['50%', '45%'],

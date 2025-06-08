@@ -57,18 +57,18 @@
       </div>
     </div>
 
-    <!-- 地区对比分析 -->
+    <!-- 交易所对比分析 -->
     <div class="analysis-module">
-      <h5 class="module-title">地区对比分析</h5>
+      <h5 class="module-title">交易所对比分析</h5>
       <div class="module-content">
         <button class="module-button" @click="toggleRegionChart">点击查看图表</button>
         <div class="analysis-chart" v-if="isRegionChartVisible">
           <div ref="regionChart" style="width: 100%; height: 400px;"></div>
         </div>
         <div class="module-table">
-          <h4>地区数据表</h4>
+          <h4>交易所数据表</h4>
           <el-table :data="regionData" border style="width: 100%">
-            <el-table-column prop="region" label="地区" />
+            <el-table-column prop="region" label="交易所" />
             <el-table-column prop="totalAssets" label="资产总值" />
             <el-table-column prop="returnRate" label="收益率" />
             <el-table-column prop="investmentRate" label="最大回撤率" />
@@ -123,14 +123,14 @@ export default {
       { timePeriod: '2024-06', totalAssets: 4020000, returnRate: '7.2%', growthRate: '18.2%' }
     ]);
 
-    // 地区数据 - 使用更真实的模拟数据
+    // 交易所数据 - 使用更真实的模拟数据
     const regionData = ref([
-      { region: '上海', totalAssets: 820000, returnRate: '8.5%', investmentRate: '28.8%' },
-      { region: '深圳', totalAssets: 712500, returnRate: '7.8%', investmentRate: '25.0%' },
-      { region: '北京', totalAssets: 570000, returnRate: '9.2%', investmentRate: '20.0%' },
-      { region: '广州', totalAssets: 342000, returnRate: '6.5%', investmentRate: '12.0%' },
-      { region: '杭州', totalAssets: 228000, returnRate: '7.0%', investmentRate: '8.0%' },
-      { region: '成都', totalAssets: 114000, returnRate: '5.8%', investmentRate: '4.0%' }
+      { region: '上海证券交易所', totalAssets: 820000, returnRate: '8.5%', investmentRate: '28.8%' },
+      { region: '深圳证券交易所', totalAssets: 712500, returnRate: '7.8%', investmentRate: '25.0%' },
+      { region: '北京证券交易所', totalAssets: 570000, returnRate: '9.2%', investmentRate: '20.0%' },
+      { region: '上海科创板', totalAssets: 342000, returnRate: '6.5%', investmentRate: '12.0%' },
+      { region: '深圳创业板', totalAssets: 228000, returnRate: '7.0%', investmentRate: '8.0%' },
+      { region: '香港交易所', totalAssets: 114000, returnRate: '5.8%', investmentRate: '4.0%' }
     ]);
 
     const isCategoryChartVisible = ref(false);
@@ -157,11 +157,42 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          axisPointer: { type: 'shadow' },
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
           textStyle: {
             color: '#ffffff'
+          },
+          formatter: function(params) {
+            let tooltip = `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">${params[0].axisValueLabel}</div>`;
+            params.forEach(param => {
+              const color = param.color;
+              const seriesName = param.seriesName;
+              let value = param.value;
+              let unit = '';
+              
+              // 根据不同系列添加合适的单位和格式
+              if (seriesName === '资产占比') {
+                unit = '%';
+              } else if (seriesName === '股票市值') {
+                value = new Intl.NumberFormat('zh-CN').format(value);
+                unit = '元';
+              } else if (seriesName === '收益率') {
+                unit = '%';
+              }
+              
+              tooltip += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${seriesName}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}${unit}</span>
+              </div>`;
+            });
+            return tooltip;
           }
         },
         legend: {
@@ -248,6 +279,11 @@ export default {
             type: 'bar',
             data: categoryData.value.map(item => parseFloat(item.asset_ratio)),
             itemStyle: { color: '#5470C6' },
+            emphasis: {
+              itemStyle: {
+                color: '#5aa9e8'
+              }
+            }
           },
           {
             name: '股票市值',
@@ -255,6 +291,17 @@ export default {
             yAxisIndex: 1,
             data: categoryData.value.map(item => item.market_value),
             itemStyle: { color: '#EE6666' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ff8a8a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '收益率',
@@ -262,6 +309,17 @@ export default {
             yAxisIndex: 2,
             data: categoryData.value.map(item => parseFloat(item.daily_return)),
             itemStyle: { color: '#91CC75' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#b3e584',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           }
         ],
       };
@@ -288,11 +346,40 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          axisPointer: { type: 'line' },
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
           textStyle: {
             color: '#ffffff'
+          },
+          formatter: function(params) {
+            let tooltip = `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">${params[0].axisValueLabel}</div>`;
+            params.forEach(param => {
+              const color = param.color;
+              const seriesName = param.seriesName;
+              let value = param.value;
+              let unit = '';
+              
+              // 根据不同系列添加合适的单位和格式
+              if (seriesName === '总资产') {
+                value = new Intl.NumberFormat('zh-CN').format(value);
+                unit = '元';
+              } else if (seriesName === '收益率' || seriesName === '增长率') {
+                unit = '%';
+              }
+              
+              tooltip += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${seriesName}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}${unit}</span>
+              </div>`;
+            });
+            return tooltip;
           }
         },
         legend: {
@@ -361,6 +448,17 @@ export default {
             type: 'line',
             data: timeData.value.map(item => item.totalAssets),
             itemStyle: { color: '#5470C6' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#5aa9e8',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '收益率',
@@ -368,6 +466,17 @@ export default {
             yAxisIndex: 1,
             data: timeData.value.map(item => parseFloat(item.returnRate)),
             itemStyle: { color: '#EE6666' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ff8a8a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '增长率',
@@ -375,6 +484,17 @@ export default {
             yAxisIndex: 1,
             data: timeData.value.map(item => parseFloat(item.growthRate)),
             itemStyle: { color: '#FFB657' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ffc87a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
         ],
       });
@@ -385,12 +505,12 @@ export default {
       });
     };
 
-    // 初始化地区图表
+    // 初始化交易所图表
     const initRegionChart = () => {
       const chart = echarts.init(regionChart.value);
       chart.setOption({
         title: {
-          text: '地区对比分析',
+                          text: '交易所对比分析',
           left: 'center',
           textStyle: {
             color: '#ffffff'
@@ -398,11 +518,40 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          axisPointer: { type: 'line' },
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
           backgroundColor: 'rgba(26, 31, 58, 0.95)',
           borderColor: 'rgba(64, 224, 255, 0.3)',
           textStyle: {
             color: '#ffffff'
+          },
+          formatter: function(params) {
+            let tooltip = `<div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">${params[0].axisValueLabel}</div>`;
+            params.forEach(param => {
+              const color = param.color;
+              const seriesName = param.seriesName;
+              let value = param.value;
+              let unit = '';
+              
+              // 根据不同系列添加合适的单位和格式
+              if (seriesName === '总资产') {
+                value = new Intl.NumberFormat('zh-CN').format(value);
+                unit = '元';
+              } else if (seriesName === '收益率' || seriesName === '投资率') {
+                unit = '%';
+              }
+              
+              tooltip += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></span>
+                <span style="font-weight: 500;">${seriesName}:</span>
+                <span style="float: right; margin-left: 20px; font-weight: bold;">${value}${unit}</span>
+              </div>`;
+            });
+            return tooltip;
           }
         },
         legend: {
@@ -471,6 +620,11 @@ export default {
             type: 'bar',
             data: regionData.value.map(item => item.totalAssets),
             itemStyle: { color: '#5470C6' },
+            emphasis: {
+              itemStyle: {
+                color: '#5aa9e8'
+              }
+            }
           },
           {
             name: '收益率',
@@ -478,6 +632,17 @@ export default {
             yAxisIndex: 1,
             data: regionData.value.map(item => parseFloat(item.returnRate)),
             itemStyle: { color: '#EE6666' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ff8a8a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
           {
             name: '投资率',
@@ -485,6 +650,17 @@ export default {
             yAxisIndex: 1,
             data: regionData.value.map(item => parseFloat(item.investmentRate)),
             itemStyle: { color: '#FFB657' },
+            lineStyle: { width: 2 },
+            symbol: 'circle',
+            symbolSize: 6,
+            emphasis: {
+              itemStyle: {
+                color: '#ffc87a',
+                borderWidth: 2,
+                borderColor: '#fff'
+              },
+              symbolSize: 10
+            }
           },
         ],
       });

@@ -5,12 +5,12 @@ import {
 } from './mockData.js';
 
 /**
- * 获取地区对比数据
+ * 获取交易所对比数据
  */
 export async function fetchRegionComparisonData() {
   // 如果启用模拟数据模式，直接返回模拟数据
   if (USE_MOCK_DATA) {
-    console.log('✅ 使用模拟数据 - 地区对比数据');
+    console.log('✅ 使用模拟数据 - 交易所对比数据');
     return new Promise(resolve => {
       setTimeout(() => {
         resolve({
@@ -25,7 +25,7 @@ export async function fetchRegionComparisonData() {
     const response = await axios.get('/api/areacomparsion/area_comparison/', {
       params: { account_id: 'DEMO000001' }
     });
-    console.log('地区对比数据API响应:', response.status);
+    console.log('交易所对比数据API响应:', response.status);
     const data = response.data;
     
     // 处理数据格式，使其与组件期望的格式一致
@@ -38,7 +38,7 @@ export async function fetchRegionComparisonData() {
       }))
     };
   } catch (error) {
-    console.error('获取地区对比数据失败:', error);
+    console.error('获取交易所对比数据失败:', error);
     
     if (error.response) {
       console.error('响应状态:', error.response.status);
@@ -50,7 +50,7 @@ export async function fetchRegionComparisonData() {
     }
     
     // 回退到模拟数据
-    console.log('🔄 回退到模拟数据 - 地区对比数据');
+    console.log('🔄 回退到模拟数据 - 交易所对比数据');
     return {
       ...mockRegionComparisonData,
       is_mock: true

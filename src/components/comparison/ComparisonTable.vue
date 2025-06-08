@@ -95,7 +95,7 @@ export default {
           ];
         case 'region':
           return [
-            { prop: 'region', label: '地区', width: '100' },
+            { prop: 'region', label: '交易所', width: '100' },
             { prop: 'allocation', label: '配置比例', width: '90', formatter: this.formatPercent },
             { prop: 'return', label: '收益率', width: '80', formatter: this.formatPercent },
             { prop: 'correlation', label: '相关性', width: '80' },
@@ -113,7 +113,7 @@ export default {
       const titleMap = {
         asset: '资产对比数据',
         time: '时间段对比数据',
-        region: '地区对比数据'
+        region: '交易所对比数据'
       };
       return titleMap[this.tableType] || '对比数据';
     },

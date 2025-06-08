@@ -37,7 +37,7 @@
             @click="setActiveMenu('region')"
           >
             <div class="menu-icon region-icon"></div>
-            <span>地区对比</span>
+            <span>交易所对比</span>
           </div>
         </div>
       </div>

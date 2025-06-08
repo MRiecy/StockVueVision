@@ -103,15 +103,15 @@ export const mockAssetCategoryData = {
   ]
 };
 
-// 地区分布模拟数据
+// 交易所分布模拟数据
 export const mockRegionData = {
   regionData: [
-    { region: '上海', value: 820000, percentage: 28.8 },
-    { region: '深圳', value: 712500, percentage: 25.0 },
-    { region: '北京', value: 570000, percentage: 20.0 },
-    { region: '广州', value: 342000, percentage: 12.0 },
-    { region: '杭州', value: 228000, percentage: 8.0 },
-    { region: '成都', value: 114000, percentage: 4.0 },
+    { region: '上海证券交易所', value: 820000, percentage: 28.8 },
+    { region: '深圳证券交易所', value: 712500, percentage: 25.0 },
+    { region: '北京证券交易所', value: 570000, percentage: 20.0 },
+    { region: '上海科创板', value: 342000, percentage: 12.0 },
+    { region: '深圳创业板', value: 228000, percentage: 8.0 },
+    { region: '香港交易所', value: 114000, percentage: 4.0 },
     { region: '其他', value: 63500, percentage: 2.2 }
   ]
 };
@@ -210,41 +210,41 @@ function getWeekNumber(date) {
   return weekNum.toString().padStart(2, '0');
 }
 
-// 地区对比模拟数据
+// 交易所对比模拟数据
 export const mockRegionComparisonData = {
   region_data: [
     { 
-      region: '上海', 
+      region: '上海证券交易所', 
       totalAssets: 820000, 
       returnRate: '8.5%', 
       investmentRate: '28.8%' 
     },
     { 
-      region: '深圳', 
+      region: '深圳证券交易所', 
       totalAssets: 712500, 
       returnRate: '7.8%', 
       investmentRate: '25.0%' 
     },
     { 
-      region: '北京', 
+      region: '北京证券交易所', 
       totalAssets: 570000, 
       returnRate: '9.2%', 
       investmentRate: '20.0%' 
     },
     { 
-      region: '广州', 
+      region: '上海科创板', 
       totalAssets: 342000, 
       returnRate: '6.5%', 
       investmentRate: '12.0%' 
     },
     { 
-      region: '杭州', 
+      region: '深圳创业板', 
       totalAssets: 228000, 
       returnRate: '7.0%', 
       investmentRate: '8.0%' 
     },
     { 
-      region: '成都', 
+      region: '香港交易所', 
       totalAssets: 114000, 
       returnRate: '5.8%', 
       investmentRate: '4.0%' 
