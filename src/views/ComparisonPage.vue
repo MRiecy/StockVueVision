@@ -2,7 +2,7 @@
   <div class="comparison-page">
     <!-- 网格背景装饰 -->
     <div class="grid-background"></div>
-    
+
     <!-- 主要内容区域 -->
     <div class="content-wrapper">
       <!-- 左侧导航栏 -->
@@ -11,9 +11,9 @@
           <div class="header-line"></div>
           <h3 class="sidebar-title">对比评估</h3>
         </div>
-        
+
         <div class="sidebar-menu">
-          <div 
+          <div
             class="menu-item"
             :class="{ active: activeMenu === 'asset' }"
             @click="setActiveMenu('asset')"
@@ -21,17 +21,17 @@
             <div class="menu-icon asset-icon"></div>
             <span>资产对比</span>
           </div>
-          
-          <div 
+
+          <div
             class="menu-item"
             :class="{ active: activeMenu === 'time' }"
             @click="setActiveMenu('time')"
           >
             <div class="menu-icon time-icon"></div>
-            <span>时间段对</span>
+            <span>时间段对比</span>
           </div>
-          
-          <div 
+
+          <div
             class="menu-item"
             :class="{ active: activeMenu === 'region' }"
             @click="setActiveMenu('region')"
@@ -42,71 +42,50 @@
         </div>
       </div>
 
-      <!-- 主要内容区域 -->
-      <div class="main-content">
-        <!-- 上半部分 -->
-        <div class="content-row top-row">
-          <!-- 左上：图表区域 -->
-          <div class="content-panel glass-panel chart-panel">
-            <div class="panel-header">
-              <div class="header-line"></div>
-              <h4 class="panel-title">
-                <i class="title-icon chart-icon"></i>
-                图
-              </h4>
-              <div class="status-indicator"></div>
-            </div>
-            <div class="panel-content">
-              <ComparisonChart :chart-type="getChartType()" />
-            </div>
-          </div>
+      <!-- 左侧分析区域 -->
+      <div class="left-analysis glass-panel">
+        <div class="panel-header">
+          <div class="header-line"></div>
+          <h4 class="panel-title">
+            <i class="title-icon analysis-icon"></i>
+            {{ getAnalysisTitle() }}
+          </h4>
+          <div class="status-indicator"></div>
+        </div>
+        <div class="panel-content">
+          <component :is="currentComponent" />
+        </div>
+      </div>
 
-          <!-- 右上：风险阈值 -->
-          <div class="content-panel glass-panel threshold-panel">
-            <div class="panel-header">
-              <div class="header-line"></div>
-              <h4 class="panel-title">
-                <i class="title-icon threshold-icon"></i>
-                风险阈值
-              </h4>
-              <div class="status-indicator"></div>
-            </div>
-            <div class="panel-content">
-              <RiskThreshold :data="riskThresholdData" />
-            </div>
+      <!-- 右侧风险板块 -->
+      <div class="risk-panel glass-panel">
+        <!-- 风险阈值面板 -->
+        <div class="risk-section">
+          <div class="panel-header">
+            <div class="header-line"></div>
+            <h4 class="panel-title">
+              <i class="title-icon threshold-icon"></i>
+              风险阈值
+            </h4>
+            <div class="status-indicator"></div>
+          </div>
+          <div class="panel-content">
+            <RiskThreshold :data="riskThresholdData" />
           </div>
         </div>
 
-        <!-- 下半部分 -->
-        <div class="content-row bottom-row">
-          <!-- 左下：表格区域 -->
-          <div class="content-panel glass-panel table-panel">
-            <div class="panel-header">
-              <div class="header-line"></div>
-              <h4 class="panel-title">
-                <i class="title-icon table-icon"></i>
-                表
-              </h4>
-              <div class="status-indicator"></div>
-            </div>
-            <div class="panel-content">
-              <ComparisonTable :table-type="getTableType()" />
-            </div>
+        <!-- 风险预警面板 -->
+        <div class="risk-section">
+          <div class="panel-header">
+            <div class="header-line"></div>
+            <h4 class="panel-title">
+              <i class="title-icon warning-icon"></i>
+              风险预警
+            </h4>
+            <div class="status-indicator"></div>
           </div>
-
-          <!-- 右下：风险预警 -->
-          <div class="content-panel glass-panel warning-panel">
-            <div class="panel-header">
-              <div class="header-line"></div>
-              <h4 class="panel-title">
-                <i class="title-icon warning-icon"></i>
-                风险预警
-              </h4>
-              <div class="status-indicator"></div>
-            </div>
-            <div class="panel-content">
-              <RiskWarning :warnings="riskWarnings" />
-            </div>
+          <div class="panel-content">
+            <RiskWarning :warnings="riskWarnings" />
           </div>
         </div>
       </div>
@@ -122,18 +101,20 @@
 </template>
 
 <script>
-import ComparisonChart from '@/components/comparison/ComparisonChart.vue';
-import RiskThreshold from '@/components/comparison/RiskThreshold.vue';
-import ComparisonTable from '@/components/comparison/ComparisonTable.vue';
+import AssetCategoryAnalysis from '@/components/layout/AssetCategoryAnalysis.vue';
+import TimePeriodAnalysis from '@/components/layout/TimePeriodAnalysis.vue';
+import ExchangeAnalysis from '@/components/layout/ExchangeAnalysis.vue';
 import RiskWarning from '@/components/comparison/RiskWarning.vue';
+import RiskThreshold from '@/components/comparison/RiskThreshold.vue';
 
 export default {
   name: 'ComparisonPage',
   components: {
-    ComparisonChart,
-    RiskThreshold,
-    ComparisonTable,
+    AssetCategoryAnalysis,
+    TimePeriodAnalysis,
+    ExchangeAnalysis,
     RiskWarning,
+    RiskThreshold
   },
   data() {
     return {
@@ -145,78 +126,52 @@ export default {
         { metric: 'VaR值', value: '3.2%', status: 'normal' }
       ],
       riskWarnings: [
-        { 
-          level: 'high', 
-          message: '股票A波动率异常偏高', 
+        {
+          level: 'high',
+          message: '股票A波动率异常偏高',
           time: '2025-01-25 15:45',
           action: '建议立即减仓'
         },
-        { 
-          level: 'medium', 
-          message: '市场整体下跌风险增加', 
+        {
+          level: 'medium',
+          message: '市场整体下跌风险增加',
           time: '2025-01-25 15:30',
           action: '建议观望'
         },
-        { 
-          level: 'low', 
-          message: '市场波动率略高', 
+        {
+          level: 'low',
+          message: '市场波动率略高',
           time: '2025-01-25 14:30',
           action: '建议适当降低仓位'
-        },
-        { 
-          level: 'high', 
-          message: 'VaR值超出预警阈值', 
-          time: '2025-01-25 14:15',
-          action: '紧急风控措施'
-        },
-        { 
-          level: 'medium', 
-          message: '行业板块相关性异常', 
-          time: '2025-01-25 13:50',
-          action: '分散投资'
-        },
-        { 
-          level: 'low', 
-          message: '流动性风险轻微上升', 
-          time: '2025-01-25 13:20',
-          action: '监控市场深度'
-        },
-        { 
-          level: 'normal', 
-          message: '系统运行正常', 
-          time: '2025-01-25 12:00',
-          action: '继续监控'
-        },
-        { 
-          level: 'medium', 
-          message: '外汇汇率波动加剧', 
-          time: '2025-01-25 11:45',
-          action: '对冲外汇风险'
-        },
-        { 
-          level: 'high', 
-          message: '单一资产集中度过高', 
-          time: '2025-01-25 11:30',
-          action: '立即分散投资'
-        },
-        { 
-          level: 'low', 
-          message: '技术指标偏离均值', 
-          time: '2025-01-25 11:15',
-          action: '密切关注'
         }
       ]
     };
+  },
+  computed: {
+    currentComponent() {
+      switch (this.activeMenu) {
+        case 'asset':
+          return 'AssetCategoryAnalysis';
+        case 'time':
+          return 'TimePeriodAnalysis';
+        case 'region':
+          return 'ExchangeAnalysis';
+        default:
+          return 'AssetCategoryAnalysis';
+      }
+    }
   },
   methods: {
     setActiveMenu(menu) {
       this.activeMenu = menu;
     },
-    getChartType() {
-      return this.activeMenu; // 根据选中的菜单返回图表类型
-    },
-    getTableType() {
-      return this.activeMenu; // 根据选中的菜单返回表格类型
+    getAnalysisTitle() {
+      const titleMap = {
+        asset: '资产类别对比分析',
+        time: '时间段对比分析',
+        region: '交易所对比分析'
+      };
+      return titleMap[this.activeMenu] || '对比分析';
     }
   }
 };
@@ -229,31 +184,8 @@ export default {
   height: calc(100vh - 120px);
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto; /* 允许垂直滚动 */
-  overflow-x: hidden; /* 禁止水平滚动 */
+  overflow: hidden;
   z-index: 2;
-}
-
-/* 主页面滚动条样式 */
-.comparison-page::-webkit-scrollbar {
-  width: 6px;
-}
-
-.comparison-page::-webkit-scrollbar-track {
-  background: rgba(64, 224, 255, 0.1);
-  border-radius: 3px;
-}
-
-.comparison-page::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(64, 224, 255, 0.6), rgba(30, 144, 255, 0.4));
-  border-radius: 3px;
-  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-.comparison-page::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(64, 224, 255, 0.8), rgba(30, 144, 255, 0.6));
-  box-shadow: 0 0 12px rgba(64, 224, 255, 0.5);
 }
 
 /* 网格背景装饰 */
@@ -263,7 +195,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     linear-gradient(rgba(64, 224, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(64, 224, 255, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -280,7 +212,7 @@ export default {
 .content-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100%; /* 最小高度100%，内容可以超出 */
+  height: 100%;
   display: flex;
   gap: 20px;
   z-index: 3;
@@ -293,37 +225,21 @@ export default {
   backdrop-filter: blur(20px);
   border: 1px solid rgba(64, 224, 255, 0.3);
   border-radius: 12px;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(64, 224, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   overflow: hidden;
   transition: all 0.5s ease;
-  animation: panelGlow 4s ease-in-out infinite alternate;
 }
 
 .glass-panel:hover {
   border-color: rgba(64, 224, 255, 0.6);
-  box-shadow: 
+  box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.4),
     0 0 60px rgba(64, 224, 255, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
-}
-
-@keyframes panelGlow {
-  0% {
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 0 40px rgba(64, 224, 255, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-  100% {
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 0 60px rgba(64, 224, 255, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
 }
 
 /* 左侧导航栏 */
@@ -336,8 +252,8 @@ export default {
 
 .sidebar-header {
   padding: 15px;
-  background: linear-gradient(135deg, 
-    rgba(64, 224, 255, 0.1) 0%, 
+  background: linear-gradient(135deg,
+    rgba(64, 224, 255, 0.1) 0%,
     rgba(30, 144, 255, 0.05) 100%);
   border-bottom: 1px solid rgba(64, 224, 255, 0.2);
   display: flex;
@@ -418,33 +334,39 @@ export default {
   transform: scale(1.1);
 }
 
-/* 主要内容区域 */
-.main-content {
+/* 左侧分析区域 */
+.left-analysis {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 右侧风险面板 */
+.risk-panel {
+  width: 400px;
+  min-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.content-row {
-  flex: 0 1 auto; /* 根据内容自适应高度 */
-  min-height: 300px; /* 设置最小高度保证美观 */
-  display: flex;
-  gap: 20px;
-}
-
-.content-panel {
+.risk-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: rgba(12, 20, 38, 0.4);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* 面板头部 */
 .panel-header {
   padding: 12px 15px;
-  background: linear-gradient(135deg, 
-    rgba(64, 224, 255, 0.1) 0%, 
+  background: linear-gradient(135deg,
+    rgba(64, 224, 255, 0.1) 0%,
     rgba(30, 144, 255, 0.05) 100%);
   border-bottom: 1px solid rgba(64, 224, 255, 0.2);
   display: flex;
@@ -473,20 +395,16 @@ export default {
   animation: iconPulse 2s ease-in-out infinite;
 }
 
-.chart-icon {
+.analysis-icon {
   background: linear-gradient(135deg, #40e0ff, #1e90ff);
-}
-
-.threshold-icon {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-}
-
-.table-icon {
-  background: linear-gradient(135deg, #feca57, #ff9ff3);
 }
 
 .warning-icon {
   background: linear-gradient(135deg, #ff9f43, #feca57);
+}
+
+.threshold-icon {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
 }
 
 @keyframes iconPulse {
@@ -499,7 +417,7 @@ export default {
   height: 8px;
   border-radius: 50%;
   background: #00ff88;
-  box-shadow: 
+  box-shadow:
     0 0 8px #00ff88,
     0 0 16px rgba(0, 255, 136, 0.5);
   animation: statusBlink 2s ease-in-out infinite;
@@ -587,45 +505,49 @@ export default {
 }
 
 /* 响应式设计 */
+@media (max-width: 1400px) {
+  .risk-panel {
+    width: 350px;
+    min-width: 350px;
+  }
+}
+
 @media (max-width: 1200px) {
   .left-sidebar {
     width: 160px;
     min-width: 160px;
   }
-  
-  .content-row {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .content-panel {
-    min-height: 250px;
+
+  .risk-panel {
+    width: 300px;
+    min-width: 300px;
   }
 }
 
-@media (max-width: 768px) {
-  .comparison-page {
-    padding: 10px;
-  }
-  
+@media (max-width: 992px) {
   .content-wrapper {
     flex-direction: column;
-    gap: 15px;
   }
-  
+
   .left-sidebar {
     width: 100%;
     height: auto;
     flex-direction: row;
   }
-  
+
   .sidebar-menu {
     flex-direction: row;
     padding: 10px;
   }
-  
-  .main-content {
-    gap: 10px;
+
+  .left-analysis,
+  .risk-panel {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .risk-section {
+    min-height: 300px;
   }
 }
 </style>

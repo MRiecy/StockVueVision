@@ -1,11 +1,7 @@
-// src/api/accountApi.js
 import axios from 'axios'
-import { 
-  mockAccountData, 
-  mockAssetCategoryData, 
-  mockRegionData, 
-  mockTimeData,
-  USE_MOCK_DATA 
+import {
+  mockAccountData,
+  USE_MOCK_DATA
 } from './mockData.js'
 
 // 创建一个axios实例
@@ -63,97 +59,3 @@ export async function fetchAccountInfo() {
     };
   }
 }
-
-/**
- * 从账户信息获取资产类别数据
- * 此API用于账户总览页面的资产分类展示
- */
-export async function fetchAssetCategoryData() {
-  // 如果启用模拟数据模式，直接返回模拟数据
-  if (USE_MOCK_DATA) {
-    console.log('✅ 使用模拟数据 - 资产类别分布');
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          ...mockAssetCategoryData,
-          is_mock: true
-        });
-      }, 300);
-    });
-  }
-
-  try {
-    const response = await api.get('/api/asset-category/');
-    return response.data;
-  } catch (error) {
-    console.error('获取资产类别数据失败:', error);
-    console.log('🔄 回退到模拟数据 - 资产类别分布');
-    return { 
-      ...mockAssetCategoryData,
-      is_mock: true 
-    };
-  }
-}
-
-/**
- * 从账户信息获取地区分布数据
- * 此API用于账户总览页面的地区分布展示
- */
-export async function fetchRegionDataFromBackend() {
-  // 如果启用模拟数据模式，直接返回模拟数据
-  if (USE_MOCK_DATA) {
-    console.log('✅ 使用模拟数据 - 地区分布');
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          ...mockRegionData,
-          is_mock: true
-        });
-      }, 400);
-    });
-  }
-
-  try {
-    const response = await api.get('/api/region-data/');
-    return response.data;
-  } catch (error) {
-    console.error('获取地区分布数据失败:', error);
-    console.log('🔄 回退到模拟数据 - 地区分布');
-    return { 
-      ...mockRegionData,
-      is_mock: true 
-    };
-  }
-}
-
-/**
- * 从账户信息获取时间序列数据
- * 此API用于账户总览页面的时间序列展示
- */
-export async function fetchTimeDataFromBackend(params) {
-  // 如果启用模拟数据模式，直接返回模拟数据
-  if (USE_MOCK_DATA) {
-    console.log('✅ 使用模拟数据 - 时间序列');
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          ...mockTimeData,
-          is_mock: true
-        });
-      }, 600);
-    });
-  }
-
-  try {
-    const response = await api.get('/api/time-data/', { params });
-    return response.data;
-  } catch (error) {
-    console.error('获取时间序列数据失败:', error);
-    console.log('🔄 回退到模拟数据 - 时间序列');
-    return { 
-      ...mockTimeData,
-      is_mock: true 
-    };
-  }
-}
-
