@@ -137,26 +137,26 @@ export const mockTimeData = {
 // 年度对比模拟数据
 export const mockYearlyComparisonData = {
   yearly_data: [
-    {
-      timePeriod: '2022',
-      totalAssets: 3200000,
-      marketValue: 2400000,
-      returnRate: 4.2,
-      growthRate: 8.5
+    { 
+      timePeriod: '2022', 
+      totalAssets: 3200000, 
+      marketValue: 2400000, 
+      returnRate: 4.2, 
+      growthRate: 8.5 
     },
-    {
-      timePeriod: '2023',
-      totalAssets: 3650000,
-      marketValue: 2650000,
-      returnRate: 5.8,
-      growthRate: 14.1
+    { 
+      timePeriod: '2023', 
+      totalAssets: 3650000, 
+      marketValue: 2650000, 
+      returnRate: 5.8, 
+      growthRate: 14.1 
     },
-    {
-      timePeriod: '2024',
-      totalAssets: 4100000,
-      marketValue: 2850000,
-      returnRate: 8.0,
-      growthRate: 12.3
+    { 
+      timePeriod: '2024', 
+      totalAssets: 4100000, 
+      marketValue: 2850000, 
+      returnRate: 8.0, 
+      growthRate: 12.3 
     }
   ],
   current_total_assets: 4100000,
@@ -169,15 +169,15 @@ export const mockYearlyComparisonData = {
 export const generateMockWeeklyData = () => {
   const currentDate = new Date();
   const weekly_data = [];
-
+  
   // 生成最近6周的模拟数据
   for (let i = 0; i < 6; i++) {
     const weekDate = new Date(currentDate);
     weekDate.setDate(currentDate.getDate() - (i * 7));
-
+    
     const year = weekDate.getFullYear();
     const weekNum = getWeekNumber(weekDate);
-
+    
     weekly_data.push({
       timePeriod: `${year}-W${weekNum}`,
       totalAssets: Math.round(4100000 * (1 - i * 0.02)),
@@ -186,10 +186,10 @@ export const generateMockWeeklyData = () => {
       growthRate: Math.round((12.3 - i * 0.5) * 10) / 10
     });
   }
-
+  
   // 按时间顺序排序（从早到晚）
   weekly_data.reverse();
-
+  
   return {
     weekly_data: weekly_data,
     current_total_assets: 4100000,
@@ -206,57 +206,57 @@ function getWeekNumber(date) {
   temp.setDate(temp.getDate() + 3 - (temp.getDay() + 6) % 7);
   const week1 = new Date(temp.getFullYear(), 0, 4);
   const weekNum = 1 + Math.round(((temp.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-
+  
   return weekNum.toString().padStart(2, '0');
 }
 
 // 地区对比模拟数据
 export const mockRegionComparisonData = {
   region_data: [
-    {
-      region: '上海',
-      totalAssets: 820000,
-      returnRate: '8.5%',
-      investmentRate: '28.8%'
+    { 
+      region: '上海', 
+      totalAssets: 820000, 
+      returnRate: '8.5%', 
+      investmentRate: '28.8%' 
     },
-    {
-      region: '深圳',
-      totalAssets: 712500,
-      returnRate: '7.8%',
-      investmentRate: '25.0%'
+    { 
+      region: '深圳', 
+      totalAssets: 712500, 
+      returnRate: '7.8%', 
+      investmentRate: '25.0%' 
     },
-    {
-      region: '北京',
-      totalAssets: 570000,
-      returnRate: '9.2%',
-      investmentRate: '20.0%'
+    { 
+      region: '北京', 
+      totalAssets: 570000, 
+      returnRate: '9.2%', 
+      investmentRate: '20.0%' 
     },
-    {
-      region: '广州',
-      totalAssets: 342000,
-      returnRate: '6.5%',
-      investmentRate: '12.0%'
+    { 
+      region: '广州', 
+      totalAssets: 342000, 
+      returnRate: '6.5%', 
+      investmentRate: '12.0%' 
     },
-    {
-      region: '杭州',
-      totalAssets: 228000,
-      returnRate: '7.0%',
-      investmentRate: '8.0%'
+    { 
+      region: '杭州', 
+      totalAssets: 228000, 
+      returnRate: '7.0%', 
+      investmentRate: '8.0%' 
     },
-    {
-      region: '成都',
-      totalAssets: 114000,
-      returnRate: '5.8%',
-      investmentRate: '4.0%'
+    { 
+      region: '成都', 
+      totalAssets: 114000, 
+      returnRate: '5.8%', 
+      investmentRate: '4.0%' 
     },
-    {
-      region: '其他',
-      totalAssets: 63500,
-      returnRate: '4.2%',
-      investmentRate: '2.2%'
+    { 
+      region: '其他', 
+      totalAssets: 63500, 
+      returnRate: '4.2%', 
+      investmentRate: '2.2%' 
     }
   ]
 };
 
 // 导出是否使用模拟数据的标志
-export const USE_MOCK_DATA = false;
+export const USE_MOCK_DATA = true; 
