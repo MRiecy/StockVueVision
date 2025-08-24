@@ -16,7 +16,7 @@ import MenuBar from '@/components/layout/MenuBar.vue';
 import MockDataIndicator from '@/components/layout/MockDataIndicator.vue';
 
 // 生成随机粒子样式
-const getParticleStyle = (index) => {
+const getParticleStyle = () => {
   const size = Math.random() * 3 + 1;
   const animationDuration = Math.random() * 20 + 10;
   const left = Math.random() * 100;
@@ -41,7 +41,6 @@ const getParticleStyle = (index) => {
 
 body {
   font-family: 'Microsoft YaHei', 'Arial', sans-serif;
-  overflow: hidden;
 }
 
 .app {
@@ -53,7 +52,6 @@ body {
     #16213e 50%, 
     #0f1419 75%, 
     #000814 100%);
-  overflow: hidden;
 }
 
 /* 动态背景粒子效果 */

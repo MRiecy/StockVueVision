@@ -178,10 +178,9 @@ export default {
 .comparison-page {
   position: relative;
   width: 100%;
-  height: calc(100vh - 120px);
+  min-height: calc(100vh - 120px);
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
   z-index: 2;
 }
 

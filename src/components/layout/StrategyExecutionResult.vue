@@ -153,7 +153,7 @@ export default {
   border-radius: 6px;
   font-size: 12px;
   color: #000000;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .transaction-curve {

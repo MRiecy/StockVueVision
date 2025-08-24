@@ -91,10 +91,9 @@ export default {
 .display-page {
   position: relative;
   width: 100%;
-  height: calc(100vh - 120px);
+  min-height: calc(100vh - 120px);
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
   z-index: 2;
 }
 
@@ -122,7 +121,7 @@ export default {
 .content-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 160px);
   display: flex;
   gap: 20px;
   z-index: 3;
@@ -174,23 +173,28 @@ export default {
 .left-section {
   width: 38%;
   min-width: 380px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .right-section {
   width: 62%;
   min-width: 520px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .strategy-intro-panel {
-  height: 42%;
+  flex: 0 0 auto;
   min-height: 320px;
 }
 
 .strategy-result-panel {
-  height: 58%;
+  flex: 1;
   min-height: 480px;
 }
 
@@ -316,7 +320,7 @@ export default {
 .panel-content {
   flex: 1;
   padding: 20px;
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
