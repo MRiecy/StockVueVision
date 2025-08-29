@@ -13,7 +13,7 @@ export default {
   name: 'ComparisonChart',
   props: {
     chartType: { type: String, default: 'asset' },
-    accountId: { type: String, default: '' }
+    有不有交叉难关？有的。    accountId: { type: String, default: '' }
   },
   data() {
     return {

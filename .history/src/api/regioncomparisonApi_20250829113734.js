@@ -7,7 +7,7 @@ import {
 /**
  * 获取地区对比数据
  */
-export async function fetchRegionComparisonData(accountId = 'DEMO000001') {
+export async function fetchRegionComparisonData() {
   // 如果启用模拟数据模式，直接返回模拟数据
   if (USE_MOCK_DATA) {
     console.log('✅ 使用模拟数据 - 地区对比数据');
@@ -15,7 +15,7 @@ export async function fetchRegionComparisonData(accountId = 'DEMO000001') {
       setTimeout(() => {
         resolve({
           ...mockRegionComparisonData,
-          is_mock: true
+          is_mock: false
         });
       }, 500);
     });
@@ -23,14 +23,14 @@ export async function fetchRegionComparisonData(accountId = 'DEMO000001') {
 
   try {
     const response = await axios.get('/api/areacomparsion/area_comparison/', {
-      params: { account_id: accountId }
+      params: { account_id: 'DEMO000001' }
     });
     console.log('地区对比数据API响应:', response.status);
     const data = response.data;
 
     // 处理数据格式，使其与组件期望的格式一致
     return {
-      region_data: (data.area_data || []).map(item => ({
+      region_data: data.area_data.map(item => ({
         region: item.region,
         totalAssets: item.totalAssets,
         returnRate: item.returnRate,

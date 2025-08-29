@@ -30,7 +30,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-// import axios from 'axios';
+import axios from 'axios';
 
 export default {
   name: 'StrategyExecution',
@@ -43,72 +43,102 @@ export default {
 
     const fetchStrategies = async () => {
       try {
-        // 注释掉不存在的接口请求，避免404报错
-        // const response = await axios.get('/api/strategies/');
-        // if (response.data && response.data.strategies && response.data.strategies.length > 0) {
-        //   strategies.value = response.data.strategies;
-        //   selectedStrategy.value = response.data.strategies[0];
-        //   if (!selectedStrategy.value.parameters) {
-        //     selectedStrategy.value.parameters = [];
-        //   }
-        // } else {
-        //   console.warn('获取到的策略数据格式不正确或为空，使用默认策略数据');
-        //   // 使用完整的默认策略数据
-        //   strategies.value = defaultStrategies;
-        //   selectedStrategy.value = strategies.value[0];
-        // }
+        const response = await axios.get('/api/strategies/');
+        if (response.data && response.data.strategies && response.data.strategies.length > 0) {
+          strategies.value = response.data.strategies;
+          selectedStrategy.value = response.data.strategies[0];
 
-        // 直接使用默认策略数据，避免接口缺失导致的错误
-        strategies.value = defaultStrategies;
-        selectedStrategy.value = strategies.value[0] || { description: '', parameters: [] };
+          if (!selectedStrategy.value.parameters) {
+            selectedStrategy.value.parameters = [];
+          }
+        } else {
+          console.warn('获取到的策略数据格式不正确或为空，使用默认策略数据');
+          // 使用完整的默认策略数据
+          strategies.value = [
+            {
+              id: 1,
+              name: '量化选股策略',
+              description: '基于PE、PB等基本面指标的价值投资策略，专注于寻找被低估的优质股票',
+              parameters: [
+                { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+                { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+                { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+                { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+              ]
+            },
+            {
+              id: 2,
+              name: 'ETF策略',
+              description: '基于价格和成交量的技术分析策略，捕捉市场短期趋势',
+              parameters: [
+                { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+                { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+                { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+                { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+              ]
+            },
+            {
+              id: 3,
+              name: '灵活对冲策略',
+              description: '基于股价偏离均值的统计套利策略，适合震荡市场',
+              parameters: [
+                { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+                { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+                { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+                { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+              ]
+            }
+          ];
+          selectedStrategy.value = strategies.value[0];
+        }
       } catch (error) {
         console.error('获取策略列表失败：', error);
         console.log('使用默认策略数据');
-        strategies.value = defaultStrategies;
-        selectedStrategy.value = strategies.value[0] || { description: '', parameters: [] };
+        // 使用完整的默认策略数据，而不是只有一个策略
+        strategies.value = [
+          {
+            id: 1,
+            name: '量化选股策略',
+            description: '基于股票数量、选股范围、最大仓位、个股仓位等基本面指标的价值投资策略，专注于寻找被低估的优质股票',
+            parameters: [
+              { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+              { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+              { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+              { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+            ]
+          },
+          {
+            id: 2,
+            name: 'ETF策略',
+            description: '基于价格和成交量的技术分析策略，捕捉市场短期趋势',
+            parameters: [
+              { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+              { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+              { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+              { paramKey: '个股仓位', paramValue: '20%', description: '单只股票最大持仓比例' }
+            ]
+          },
+          {
+            id: 3,
+            name: '灵活对冲策略',
+            description: '基于股价偏离均值的统计套利策略，适合震荡市场',
+            parameters: [
+              { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
+              { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
+              { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
+              { paramKey: '个股仓位', paramValue: '30%', description: '单只股票最大持仓比例' }
+            ]
+          }
+        ];
+        selectedStrategy.value = strategies.value[0];
       }
     };
-
-    const defaultStrategies = [
-      {
-        id: 1,
-        name: '量化选股策略',
-        description: '基于PE、PB等基本面指标的价值投资策略，专注于寻找被低估的优质股票',
-        parameters: [
-          { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
-          { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
-          { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
-          { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
-        ]
-      },
-      {
-        id: 2,
-        name: 'ETF策略',
-        description: '基于价格和成交量的技术分析策略，捕捉市场短期趋势',
-        parameters: [
-          { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
-          { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
-          { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
-          { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
-        ]
-      },
-      {
-        id: 3,
-        name: '灵活对冲策略',
-        description: '基于股价偏离均值的统计套利策略，适合震荡市场',
-        parameters: [
-          { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
-          { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
-          { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
-          { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
-        ]
-      }
-    ];
 
     onMounted(fetchStrategies);
 
     const handleStrategyChange = () => {
       console.log('当前选中策略：', selectedStrategy.value);
+      // 确保选中的策略有完整的参数信息
       if (selectedStrategy.value && !selectedStrategy.value.parameters) {
         selectedStrategy.value.parameters = [];
       }

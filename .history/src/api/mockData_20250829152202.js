@@ -162,7 +162,7 @@ export const mockYearlyComparisonData = {
   current_total_assets: 4100000,
   current_market_value: 2850000,
   current_return_rate: 8.0,
-  is_mock: false
+  is_mock: FLASE
 };
 
 // 每周对比模拟数据生成函数
@@ -195,7 +195,7 @@ export const generateMockWeeklyData = () => {
     current_total_assets: 4100000,
     current_market_value: 2850000,
     current_return_rate: 8.0,
-    is_mock: false
+    is_mock: FLASE
   };
 };
 

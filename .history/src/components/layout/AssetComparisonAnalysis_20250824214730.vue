@@ -137,8 +137,6 @@ export default {
     const isTimeChartVisible = ref(false);
     const isRegionChartVisible = ref(false);
 
-    const safeSeries = (series) => Array.isArray(series) ? series : [];
-
     // 初始化资产类别图表
     const initCategoryChart = () => {
       if (!categoryChart.value) {
@@ -175,7 +173,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: Array.isArray(categoryData.value) ? categoryData.value.map(item => item.stock_code) : [],
+          data: categoryData.value.map(item => item.stock_code),
           axisLabel: {
             color: '#ffffff'
           },
@@ -244,28 +242,28 @@ export default {
             }
           }
         ],
-        series: safeSeries([
+        series: [
           {
             name: '资产占比',
             type: 'bar',
-            data: Array.isArray(categoryData.value) ? categoryData.value.map(item => parseFloat(item.asset_ratio)) : [],
+            data: categoryData.value.map(item => parseFloat(item.asset_ratio)),
             itemStyle: { color: '#5470C6' },
           },
           {
             name: '股票市值',
             type: 'line',
             yAxisIndex: 1,
-            data: Array.isArray(categoryData.value) ? categoryData.value.map(item => item.market_value) : [],
+            data: categoryData.value.map(item => item.market_value),
             itemStyle: { color: '#EE6666' },
           },
           {
             name: '收益率',
             type: 'line',
             yAxisIndex: 2,
-            data: Array.isArray(categoryData.value) ? categoryData.value.map(item => parseFloat(item.daily_return)) : [],
+            data: categoryData.value.map(item => parseFloat(item.daily_return)),
             itemStyle: { color: '#91CC75' },
           }
-        ]),
+        ],
       };
 
       console.log('图表配置:', option);
@@ -306,7 +304,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: Array.isArray(timeData.value) ? timeData.value.map(item => item.timePeriod) : [],
+          data: timeData.value.map(item => item.timePeriod),
           axisLabel: {
             color: '#ffffff'
           },
@@ -357,28 +355,28 @@ export default {
             }
           },
         ],
-        series: safeSeries([
+        series: [
           {
             name: '总资产',
             type: 'line',
-            data: Array.isArray(timeData.value) ? timeData.value.map(item => item.totalAssets) : [],
+            data: timeData.value.map(item => item.totalAssets),
             itemStyle: { color: '#5470C6' },
           },
           {
             name: '收益率',
             type: 'line',
             yAxisIndex: 1,
-            data: Array.isArray(timeData.value) ? timeData.value.map(item => parseFloat(item.returnRate)) : [],
+            data: timeData.value.map(item => parseFloat(item.returnRate)),
             itemStyle: { color: '#EE6666' },
           },
           {
             name: '增长率',
             type: 'line',
             yAxisIndex: 1,
-            data: Array.isArray(timeData.value) ? timeData.value.map(item => parseFloat(item.growthRate)) : [],
+            data: timeData.value.map(item => parseFloat(item.growthRate)),
             itemStyle: { color: '#FFB657' },
           },
-        ]),
+        ],
       });
 
       // 调整图表宽度自适应
@@ -416,7 +414,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: Array.isArray(regionData.value) ? regionData.value.map(item => item.region) : [],
+          data: regionData.value.map(item => item.region),
           axisLabel: {
             color: '#ffffff'
           },
@@ -467,28 +465,28 @@ export default {
             }
           },
         ],
-        series: safeSeries([
+        series: [
           {
             name: '总资产',
             type: 'bar',
-            data: Array.isArray(regionData.value) ? regionData.value.map(item => item.totalAssets) : [],
+            data: regionData.value.map(item => item.totalAssets),
             itemStyle: { color: '#5470C6' },
           },
           {
             name: '收益率',
             type: 'line',
             yAxisIndex: 1,
-            data: Array.isArray(regionData.value) ? regionData.value.map(item => parseFloat(item.returnRate)) : [],
+            data: regionData.value.map(item => parseFloat(item.returnRate)),
             itemStyle: { color: '#EE6666' },
           },
           {
             name: '投资率',
             type: 'line',
             yAxisIndex: 1,
-            data: Array.isArray(regionData.value) ? regionData.value.map(item => parseFloat(item.investmentRate)) : [],
+            data: regionData.value.map(item => parseFloat(item.investmentRate)),
             itemStyle: { color: '#FFB657' },
           },
-        ]),
+        ],
       });
 
       // 调整图表宽度自适应

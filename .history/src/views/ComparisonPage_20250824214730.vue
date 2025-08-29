@@ -57,12 +57,7 @@
               <div class="status-indicator"></div>
             </div>
             <div class="panel-content">
-              <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;">
-                <span style="color:#fff;font-size:12px;">账户</span>
-                <el-input v-model="accountId" size="small" placeholder="输入账户ID" style="max-width:200px;" />
-                <el-button size="small" type="primary" @click="refreshAll">刷新</el-button>
-              </div>
-              <ComparisonChart :chart-type="getChartType()" :account-id="accountId" />
+              <ComparisonChart :chart-type="getChartType()" />
             </div>
           </div>
 
@@ -134,11 +129,15 @@ import RiskWarning from '@/components/comparison/RiskWarning.vue';
 
 export default {
   name: 'ComparisonPage',
-  components: { ComparisonChart, RiskThreshold, ComparisonTable, RiskWarning },
+  components: {
+    ComparisonChart,
+    RiskThreshold,
+    ComparisonTable,
+    RiskWarning,
+  },
   data() {
     return {
       activeMenu: 'asset',
-      accountId: '',
       riskThresholdData: [
         { metric: '最大本金损失', value: '5%', status: 'normal' },
         { metric: '波动率', value: '12%', status: 'warning' },
@@ -146,16 +145,31 @@ export default {
         { metric: 'VaR值', value: '3.2%', status: 'normal' }
       ],
       riskWarnings: [
-        { level: 'low', message: '市场波动率略高', time: '2025-01-25 14:30', action: '建议适当降低仓位' },
-        { level: 'normal', message: '系统运行正常', time: '2025-01-25 12:00', action: '继续监控' }
+        {
+          level: 'low',
+          message: '市场波动率略高',
+          time: '2025-01-25 14:30',
+          action: '建议适当降低仓位'
+        },
+        {
+          level: 'normal',
+          message: '系统运行正常',
+          time: '2025-01-25 12:00',
+          action: '继续监控'
+        }
       ]
     };
   },
   methods: {
-    setActiveMenu(menu) { this.activeMenu = menu; },
-    getChartType() { return this.activeMenu; },
-    getTableType() { return this.activeMenu; },
-    refreshAll() { this.activeMenu = this.activeMenu; }
+    setActiveMenu(menu) {
+      this.activeMenu = menu;
+    },
+    getChartType() {
+      return this.activeMenu; // 根据选中的菜单返回图表类型
+    },
+    getTableType() {
+      return this.activeMenu; // 根据选中的菜单返回表格类型
+    }
   }
 };
 </script>

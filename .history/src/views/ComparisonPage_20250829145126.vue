@@ -138,7 +138,7 @@ export default {
   data() {
     return {
       activeMenu: 'asset',
-      accountId: '',
+      accountId: 'DEMO000001',
       riskThresholdData: [
         { metric: '最大本金损失', value: '5%', status: 'normal' },
         { metric: '波动率', value: '12%', status: 'warning' },

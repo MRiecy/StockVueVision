@@ -26,8 +26,6 @@ export default {
       const chartDom = this.$refs.chartContainer;
       this.myChart = echarts.init(chartDom);
 
-      const safeSeries = (series) => Array.isArray(series) ? series : [];
-
       const option = {
         tooltip: {
           trigger: 'axis',
@@ -60,7 +58,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: Array.isArray(this.generateXAxisData()) ? this.generateXAxisData() : [],
+          data: this.generateXAxisData(),
           axisLabel: {
             interval: 'auto',
             rotate: 30,
@@ -99,11 +97,11 @@ export default {
             }
           }
         },
-        series: safeSeries([
+        series: [
           {
             name: '基准收益',
             type: 'line',
-            data: this.generateRandomData('基准收益') || [],
+            data: this.generateRandomData('基准收益'),
             smooth: true,
             itemStyle: {
               color: '#00a2ae',
@@ -117,7 +115,7 @@ export default {
           {
             name: '策略收益',
             type: 'line',
-            data: this.generateRandomData('策略收益') || [],
+            data: this.generateRandomData('策略收益'),
             smooth: true,
             itemStyle: {
               color: '#ff7c57',
@@ -131,7 +129,7 @@ export default {
           {
             name: '超额收益',
             type: 'line',
-            data: this.generateRandomData('超额收益') || [],
+            data: this.generateRandomData('超额收益'),
             smooth: true,
             itemStyle: {
               color: '#00e191',
@@ -142,7 +140,7 @@ export default {
             symbol: 'circle',
             symbolSize: 4
           },
-        ]),
+        ],
       };
 
       this.myChart.setOption(option);
@@ -161,7 +159,7 @@ export default {
       });
     },
     generateRandomData(type) {
-      const arr = Array.from({ length: 30 }, () => {
+      return Array.from({ length: 30 }, () => {
         const base = Math.random() * 350;
         if (type === '基准收益') {
           return base;
@@ -172,7 +170,6 @@ export default {
         }
         return base;
       });
-      return Array.isArray(arr) ? arr : [];
     },
   },
 };

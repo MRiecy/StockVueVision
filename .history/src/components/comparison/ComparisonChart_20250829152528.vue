@@ -13,7 +13,7 @@ export default {
   name: 'ComparisonChart',
   props: {
     chartType: { type: String, default: 'asset' },
-    accountId: { type: String, default: '' }
+    accountId: { type: String, default: 'DEMO000001' }
   },
   data() {
     return {

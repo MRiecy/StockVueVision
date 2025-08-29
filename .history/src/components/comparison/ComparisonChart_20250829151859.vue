@@ -13,7 +13,7 @@ export default {
   name: 'ComparisonChart',
   props: {
     chartType: { type: String, default: 'asset' },
-    accountId: { type: String, default: '' }
+    accountId: { type: String, default: 'DEMO000001' }
   },
   data() {
     return {
@@ -36,8 +36,7 @@ export default {
   watch: {
     chartType: {
       handler() {
-        // 切换图表类型时，重新拉取对应数据后再渲染
-        this.fetchAndRender();
+        this.updateChart();
       },
       immediate: false
     },

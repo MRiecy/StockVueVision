@@ -13,7 +13,7 @@ export default {
   name: 'ComparisonChart',
   props: {
     chartType: { type: String, default: 'asset' },
-    accountId: { type: String, default: '' }
+    accountId: { type: String, default: 'DEMO000001' }
   },
   data() {
     return {
@@ -36,8 +36,7 @@ export default {
   watch: {
     chartType: {
       handler() {
-        // 切换图表类型时，重新拉取对应数据后再渲染
-        this.fetchAndRender();
+        this.updateChart();
       },
       immediate: false
     },
@@ -81,17 +80,6 @@ export default {
 
     updateChart() {
       if (!this.myChart) return;
-
-      // 空数据提前保护，避免 ECharts 内部读取 series[i].type 报错
-      if (this.chartType === 'time' && this.yearlyData.length === 0 && this.weeklyData.length === 0) {
-        this.myChart.setOption({ xAxis: { type: 'category', data: [] }, yAxis: [], series: [] }, true);
-        return;
-      }
-      if (this.chartType === 'region' && this.regionData.length === 0) {
-        this.myChart.setOption({ xAxis: { type: 'category', data: [] }, yAxis: [], series: [] }, true);
-        return;
-      }
-
       let option = {};
       switch (this.chartType) {
         case 'time':
