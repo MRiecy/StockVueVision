@@ -6,7 +6,7 @@
       <div class="corner-accent left"></div>
       <div class="corner-accent right"></div>
     </div>
-    
+
     <!-- 主标题区域 -->
     <div class="header-section">
       <div class="logo-area">
@@ -20,7 +20,7 @@
           <div class="subtitle">Stock Vision Analytics</div>
         </div>
       </div>
-      
+
       <!-- 系统状态指示器 -->
       <div class="status-indicators">
         <div class="status-item">
@@ -28,6 +28,35 @@
           <span>系统运行正常</span>
         </div>
         <div class="time-display">{{ currentTime }}</div>
+
+        <!-- 用户菜单 -->
+        <div class="user-menu">
+          <el-dropdown @command="handleUserCommand" trigger="click">
+            <div class="user-avatar">
+              <div class="avatar-circle">
+                <i class="avatar-icon">👤</i>
+              </div>
+              <span class="user-name">{{ userName }}</span>
+              <i class="el-icon-arrow-down"></i>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="user-dropdown">
+                <el-dropdown-item command="profile">
+                  <i class="el-icon-user"></i>
+                  个人资料
+                </el-dropdown-item>
+                <el-dropdown-item command="switch-account">
+                  <i class="el-icon-refresh"></i>
+                  切换账号
+                </el-dropdown-item>
+                <el-dropdown-item divided command="logout">
+                  <i class="el-icon-switch-button"></i>
+                  退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
     </div>
 
@@ -56,7 +85,7 @@
         </el-menu-item>
       </el-menu>
     </div>
-    
+
     <!-- 底部装饰线 -->
     <div class="bottom-decoration">
       <div class="decoration-line"></div>
@@ -67,11 +96,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus'; // 导入 ElMessage
 
 const router = useRouter();
 const route = useRoute();
 const activeIndex = ref(route.path);
 const currentTime = ref('');
+const userName = ref('用户'); // 默认用户名
 
 let timer = null;
 
@@ -92,6 +123,35 @@ const handleSelect = (key) => {
   router.push(key);
 };
 
+// 处理用户菜单命令
+const handleUserCommand = (command) => {
+  switch (command) {
+    case 'profile':
+      // TODO: 跳转到个人资料页面
+      ElMessage.info('个人资料功能开发中...');
+      break;
+    case 'switch-account':
+      // 跳转到登录页面
+      router.push('/login');
+      break;
+    case 'logout':
+      // 退出登录
+      handleLogout();
+      break;
+  }
+};
+
+// 退出登录处理
+const handleLogout = () => {
+  // TODO: 调用退出登录API
+  // 清除本地存储的用户信息
+  localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
+
+  ElMessage.success('已退出登录');
+  router.push('/login');
+};
+
 onMounted(() => {
   updateTime();
   timer = setInterval(updateTime, 1000);
@@ -108,13 +168,13 @@ onUnmounted(() => {
 .menu-bar {
   position: relative;
   width: 100%;
-  background: linear-gradient(135deg, 
-    rgba(12, 20, 38, 0.95) 0%, 
-    rgba(26, 31, 58, 0.95) 50%, 
+  background: linear-gradient(135deg,
+    rgba(12, 20, 38, 0.95) 0%,
+    rgba(26, 31, 58, 0.95) 50%,
     rgba(15, 20, 25, 0.95) 100%);
   backdrop-filter: blur(10px);
   border-bottom: 2px solid rgba(64, 224, 255, 0.3);
-  box-shadow: 
+  box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(64, 224, 255, 0.1);
   z-index: 1000;
@@ -125,20 +185,20 @@ onUnmounted(() => {
 .top-decoration {
   position: relative;
   height: 3px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(64, 224, 255, 0.8) 50%, 
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(64, 224, 255, 0.8) 50%,
     transparent 100%);
 }
 
 .decoration-line {
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(64, 224, 255, 0.6) 20%, 
-    rgba(64, 224, 255, 1) 50%, 
-    rgba(64, 224, 255, 0.6) 80%, 
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(64, 224, 255, 0.6) 20%,
+    rgba(64, 224, 255, 1) 50%,
+    rgba(64, 224, 255, 0.6) 80%,
     transparent 100%);
   animation: pulse 3s ease-in-out infinite;
 }
@@ -181,7 +241,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(64, 224, 255, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.2);
   animation: rotate 10s linear infinite;
@@ -247,6 +307,86 @@ onUnmounted(() => {
   text-shadow: 0 0 5px rgba(64, 224, 255, 0.5);
 }
 
+/* 用户菜单 */
+.user-menu {
+  margin-left: 20px;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  background: rgba(64, 224, 255, 0.1);
+  border-color: rgba(64, 224, 255, 0.4);
+  box-shadow: 0 0 15px rgba(64, 224, 255, 0.2);
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #40e0ff, #1e90ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(64, 224, 255, 0.4);
+}
+
+.avatar-icon {
+  font-size: 16px;
+  color: white;
+}
+
+.user-name {
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+  text-shadow: 0 0 5px rgba(64, 224, 255, 0.3);
+}
+
+/* 用户下拉菜单 */
+.user-dropdown {
+  background: rgba(12, 20, 38, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown :deep(.el-dropdown-menu__item) {
+  color: white;
+  background: transparent;
+  border-radius: 4px;
+  margin: 2px 8px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.user-dropdown :deep(.el-dropdown-menu__item:hover) {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+}
+
+.user-dropdown :deep(.el-dropdown-menu__item i) {
+  margin-right: 8px;
+  color: rgba(64, 224, 255, 0.8);
+}
+
+.user-dropdown :deep(.el-dropdown-menu__item.is-divided) {
+  border-top: 1px solid rgba(64, 224, 255, 0.2);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+
 /* 导航区域 */
 .nav-section {
   padding: 0 30px 15px;
@@ -270,7 +410,7 @@ onUnmounted(() => {
 .menu-item-custom:hover {
   background: rgba(64, 224, 255, 0.1) !important;
   border-color: rgba(64, 224, 255, 0.5) !important;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(64, 224, 255, 0.3),
     inset 0 0 20px rgba(64, 224, 255, 0.1);
   transform: translateY(-2px);
@@ -279,7 +419,7 @@ onUnmounted(() => {
 .menu-item-custom.is-active {
   background: rgba(64, 224, 255, 0.2) !important;
   border-color: rgba(64, 224, 255, 0.8) !important;
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(64, 224, 255, 0.5),
     inset 0 0 20px rgba(64, 224, 255, 0.2);
 }
@@ -335,11 +475,11 @@ onUnmounted(() => {
 /* 底部装饰 */
 .bottom-decoration {
   height: 2px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(64, 224, 255, 0.4) 25%, 
-    rgba(64, 224, 255, 0.8) 50%, 
-    rgba(64, 224, 255, 0.4) 75%, 
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(64, 224, 255, 0.4) 25%,
+    rgba(64, 224, 255, 0.8) 50%,
+    rgba(64, 224, 255, 0.4) 75%,
     transparent 100%);
 }
 

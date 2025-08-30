@@ -99,13 +99,13 @@
             </div>
           </div>
 
-          <!-- 右下：风险预警 -->
+          <!-- 右下：业绩归因 -->
           <div class="content-panel glass-panel warning-panel">
             <div class="panel-header">
               <div class="header-line"></div>
               <h4 class="panel-title">
                 <i class="title-icon warning-icon"></i>
-                风险预警
+                业绩归因
               </h4>
               <div class="status-indicator"></div>
             </div>

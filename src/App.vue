@@ -1,9 +1,10 @@
 <template>
   <div class="app">
-    <MenuBar />
+    <!-- 只在非登录页面显示菜单栏 -->
+    <MenuBar v-if="showMenuBar" />
     <router-view />
     <!-- 模拟数据状态指示器 -->
-    <MockDataIndicator />
+    <MockDataIndicator v-if="showMenuBar" />
     <!-- 动态背景粒子效果 -->
     <div class="background-particles">
       <div v-for="n in 50" :key="n" class="particle" :style="getParticleStyle()"></div>
@@ -12,8 +13,17 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import MenuBar from '@/components/layout/MenuBar.vue';
 import MockDataIndicator from '@/components/layout/MockDataIndicator.vue';
+
+const route = useRoute()
+
+// 判断是否显示菜单栏
+const showMenuBar = computed(() => {
+  return route.path !== '/login'
+})
 
 // 生成随机粒子样式
 const getParticleStyle = () => {
