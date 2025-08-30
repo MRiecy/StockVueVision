@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据模式调试工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #40e0ff;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: linear-gradient(135deg, #40e0ff, #30a0ff);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(64, 224, 255, 0.4);
+        }
+        .status {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #40e0ff;
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 数据模式调试工具</h1>
+        
+        <div class="button-group">
+            <button onclick="runDebugScript()">运行调试脚本</button>
+            <button onclick="checkDataMode()">检查数据模式</button>
+            <button onclick="testApiConnection()">测试API连接</button>
+            <button onclick="clearLog()">清空日志</button>
+            <button onclick="setRealDataMode()">强制真实数据模式</button>
+        </div>
+
+        <div class="status" id="status">
+            <strong>状态:</strong> 等待执行...
+        </div>
+
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        // 日志函数
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : 
+                            type === 'error' ? 'error' : 
+                            type === 'warning' ? 'warning' : 'info';
+            
+            logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('status').innerHTML = '<strong>状态:</strong> 日志已清空';
+        }
+
+        // 检查数据模式
+        function checkDataMode() {
+            log('=== 检查数据模式 ===', 'info');
+            
+            const mockDataSetting = localStorage.getItem('useMockData');
+            log(`localStorage中的useMockData设置: ${mockDataSetting}`, 'info');
+            
+            const currentMode = mockDataSetting === 'true' ? '模拟数据' : '真实数据';
+            log(`当前实际使用的数据模式: ${currentMode}`, currentMode === '真实数据' ? 'success' : 'warning');
+            
+            log('API基础URL: http://localhost:8000', 'info');
+            
+            document.getElementById('status').innerHTML = `<strong>状态:</strong> 数据模式检查完成 - ${currentMode}`;
+        }
+
+        // 测试API连接
+        async function testApiConnection() {
+            log('=== 测试API连接 ===', 'info');
+            log('正在测试API连接...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/account-info/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ API连接成功', 'success');
+                    log(`返回数据: ${JSON.stringify(data, null, 2)}`, 'info');
+                    log(`数据是否包含is_mock标记: ${data.hasOwnProperty('is_mock')}`, 'info');
+                    
+                    if (data.hasOwnProperty('is_mock')) {
+                        log(`is_mock值: ${data.is_mock}`, data.is_mock ? 'warning' : 'success');
+                    }
+                } else {
+                    log(`❌ API连接失败，状态码: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API连接错误: ${error.message}`, 'error');
+            }
+            
+            document.getElementById('status').innerHTML = '<strong>状态:</strong> API连接测试完成';
+        }
+
+        // 强制设置为真实数据模式
+        function setRealDataMode() {
+            log('=== 强制设置真实数据模式 ===', 'info');
+            localStorage.setItem('useMockData', 'false');
+            log('已强制设置为真实数据模式', 'success');
+            log('建议刷新页面以应用新设置', 'warning');
+            document.getElementById('status').innerHTML = '<strong>状态:</strong> 已设置为真实数据模式';
+        }
+
+        // 运行完整调试脚本
+        async function runDebugScript() {
+            log('=== 开始运行完整调试脚本 ===', 'info');
+            
+            // 检查数据模式
+            checkDataMode();
+            
+            // 等待一下再测试API
+            setTimeout(async () => {
+                await testApiConnection();
+                
+                // 检查组件状态
+                log('=== 检查组件状态 ===', 'info');
+                const component = document.querySelector('.asset-comparison-analysis');
+                if (component) {
+                    log('✅ AssetComparisonAnalysis组件已加载', 'success');
+                    
+                    const loadingStates = component.querySelectorAll('.loading-state');
+                    log(`加载状态数量: ${loadingStates.length}`, 'info');
+                    
+                    const errorStates = component.querySelectorAll('.error-state');
+                    log(`错误状态数量: ${errorStates.length}`, 'info');
+                    
+                    const tables = component.querySelectorAll('.el-table');
+                    log(`表格数量: ${tables.length}`, 'info');
+                } else {
+                    log('❌ AssetComparisonAnalysis组件未找到', 'error');
+                    log('请确保已访问对比分析页面', 'warning');
+                }
+                
+                log('=== 调试脚本执行完成 ===', 'success');
+                log('如果看到模拟数据，请检查：', 'info');
+                log('1. 后端服务是否运行在 http://localhost:8000', 'info');
+                log('2. API接口是否返回正确的数据格式', 'info');
+                log('3. 网络连接是否正常', 'info');
+                log('4. 浏览器控制台是否有错误信息', 'info');
+                
+                document.getElementById('status').innerHTML = '<strong>状态:</strong> 调试脚本执行完成';
+            }, 1000);
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            log('页面加载完成，调试工具已准备就绪', 'success');
+            log('点击按钮开始调试...', 'info');
+        };
+    </script>
+</body>
+</html> 

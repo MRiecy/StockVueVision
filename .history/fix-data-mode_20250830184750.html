@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据模式修复工具</title>
+</head>
+<body>
+    <h2>数据模式修复工具</h2>
+    <p>当前数据模式: <span id="currentMode">检查中...</span></p>
+    <button onclick="setRealDataMode()">强制设置为真实数据模式</button>
+    <button onclick="checkStatus()">检查状态</button>
+    <div id="log"></div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        }
+
+        function checkStatus() {
+            const setting = localStorage.getItem('useMockData');
+            const currentModeSpan = document.getElementById('currentMode');
+            
+            if (setting === null) {
+                currentModeSpan.textContent = '未设置（默认真实数据）';
+                log('localStorage中没有useMockData设置');
+            } else if (setting === 'true') {
+                currentModeSpan.textContent = '模拟数据模式';
+                log('当前使用模拟数据模式');
+            } else {
+                currentModeSpan.textContent = '真实数据模式';
+                log('当前使用真实数据模式');
+            }
+        }
+
+        function setRealDataMode() {
+            localStorage.setItem('useMockData', 'false');
+            log('已强制设置为真实数据模式');
+            checkStatus();
+            
+            // 3秒后跳转回主应用
+            setTimeout(() => {
+                log('3秒后跳转回主应用...');
+                window.location.href = 'http://localhost:5173';
+            }, 3000);
+        }
+
+        // 页面加载时检查状态
+        window.onload = checkStatus;
+    </script>
+</body>
+</html>
