@@ -33,23 +33,12 @@
           :rules="loginRules"
           class="login-form"
         >
-          <!-- 用户名输入（注册时显示） -->
-          <el-form-item prop="username" v-if="isNewUser">
+          <!-- 用户名输入 -->
+          <el-form-item prop="username">
             <el-input
               v-model="loginForm.username"
               placeholder="请输入用户名"
               prefix-icon="User"
-              class="custom-input"
-              size="large"
-            />
-          </el-form-item>
-
-          <!-- 手机号输入 -->
-          <el-form-item prop="phone">
-            <el-input
-              v-model="loginForm.phone"
-              placeholder="请输入手机号"
-              prefix-icon="Phone"
               class="custom-input"
               size="large"
             />
@@ -81,7 +70,7 @@
             </div>
           </el-form-item>
 
-          <!-- 登录/注册按钮 -->
+          <!-- 登录按钮 -->
           <el-form-item>
             <el-button
               type="primary"
@@ -90,12 +79,12 @@
               :loading="loading"
               @click="handleLogin"
             >
-              {{ isNewUser ? '注册账号' : '登录 / 注册' }}
+              {{ isNewUser ? '注册' : '登录' }}
             </el-button>
           </el-form-item>
         </el-form>
 
-        <!-- 切换模式按钮 -->
+        <!-- 切换模式 -->
         <div class="mode-switch">
           <el-button
             type="text"
@@ -108,11 +97,8 @@
 
         <!-- 底部说明 -->
         <div class="login-footer">
-          <p class="footer-text" v-if="!isNewUser">
-            首次使用手机号登录将自动注册账号
-          </p>
-          <p class="footer-text" v-if="isNewUser">
-            注册成功后即可使用系统功能
+          <p class="footer-text">
+            {{ isNewUser ? '注册新账号，开始使用股票决策系统' : '登录您的账号，继续使用系统' }}
           </p>
           <p class="footer-text">
             密码至少6位字符，支持字母、数字、特殊字符
@@ -124,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { loginWithPassword } from '@/api/authApi'
@@ -137,37 +123,28 @@ const isNewUser = ref(false)
 // 登录表单数据
 const loginForm = reactive({
   username: '',
-  phone: '',
   password: ''
 })
 
 // 表单验证规则
-const loginRules = {
+const loginRules = computed(() => ({
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 20, message: '用户名长度在2-20个字符', trigger: 'blur' }
-  ],
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { min: 3, max: 20, message: '用户名长度在3-20个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码至少6位字符', trigger: 'blur' }
   ]
-}
+}))
 
 // 切换登录/注册模式
 const toggleMode = () => {
   isNewUser.value = !isNewUser.value
   // 清空表单
   loginForm.username = ''
-  loginForm.phone = ''
   loginForm.password = ''
-  // 清除验证错误
-  if (loginFormRef.value) {
-    loginFormRef.value.clearValidate()
-  }
+  loginFormRef.value?.clearValidate()
 }
 
 // 生成粒子样式
@@ -213,7 +190,6 @@ const handleLogin = async () => {
     // 调用后端API进行登录/注册
     const result = await loginWithPassword({
       username: loginForm.username,
-      phone: loginForm.phone,
       password: loginForm.password,
       isNewUser: isNewUser.value
     })
@@ -232,19 +208,14 @@ const handleLogin = async () => {
     let errorMessage = error.message || (isNewUser.value ? '注册失败' : '登录失败')
 
     // 根据错误类型显示不同的提示
-    if (error.response) {
-      const { status, data } = error.response
-      if (status === 400) {
-        errorMessage = data?.message || '请求参数错误，请检查输入信息'
-      } else if (status === 401) {
-        errorMessage = '用户名或密码错误'
-      } else if (status === 409) {
-        errorMessage = '用户名或手机号已存在'
-      } else {
-        errorMessage = data?.message || errorMessage
-      }
-    } else if (error.request) {
-      errorMessage = '网络连接失败，请检查网络设置'
+    if (error.message.includes('网络连接失败')) {
+      errorMessage = '无法连接到服务器，请检查网络连接或联系管理员'
+    } else if (error.message.includes('用户名或密码错误')) {
+      errorMessage = '用户名或密码错误，请重新输入'
+    } else if (error.message.includes('用户名已存在')) {
+      errorMessage = '用户名已存在，请选择其他用户名'
+    } else if (error.message.includes('请求参数错误')) {
+      errorMessage = '输入信息格式错误，请检查用户名和密码'
     }
 
     ElMessage.error(errorMessage)
@@ -632,6 +603,23 @@ const handleLogin = async () => {
   transform: translateY(-1px);
 }
 
+/* 切换模式 */
+.mode-switch {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.switch-btn {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.switch-btn:hover {
+  color: #40e0ff;
+  text-decoration: underline;
+}
+
 /* 底部说明 */
 .login-footer {
   text-align: center;
@@ -641,30 +629,6 @@ const handleLogin = async () => {
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   margin: 0 0 5px 0;
-}
-
-/* 模式切换按钮 */
-.mode-switch {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.switch-btn {
-  color: rgba(64, 224, 255, 0.8);
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.switch-btn:hover {
-  color: #40e0ff;
-  background: rgba(64, 224, 255, 0.1);
-  transform: translateY(-1px);
-}
-
-.switch-btn:active {
-  transform: translateY(0);
 }
 
 /* 动画 */

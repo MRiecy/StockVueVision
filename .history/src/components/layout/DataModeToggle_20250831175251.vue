@@ -20,7 +20,7 @@
 import { ref, onMounted } from 'vue'
 import { getMockDataSetting } from '@/api/mockData.js'
 
-const useMockData = ref(true)
+const useMockData = ref(false)
 const statusText = ref('检查中...')
 const statusClass = ref('checking')
 

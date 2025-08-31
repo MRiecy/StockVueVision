@@ -643,30 +643,6 @@ const handleLogin = async () => {
   margin: 0 0 5px 0;
 }
 
-/* 模式切换按钮 */
-.mode-switch {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.switch-btn {
-  color: rgba(64, 224, 255, 0.8);
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.switch-btn:hover {
-  color: #40e0ff;
-  background: rgba(64, 224, 255, 0.1);
-  transform: translateY(-1px);
-}
-
-.switch-btn:active {
-  transform: translateY(0);
-}
-
 /* 动画 */
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }

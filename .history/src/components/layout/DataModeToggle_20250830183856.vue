@@ -32,13 +32,13 @@ onMounted(() => {
 
 const toggleDataMode = () => {
   useMockData.value = !useMockData.value
-
+  
   // 保存到localStorage
   localStorage.setItem('useMockData', useMockData.value.toString())
-
+  
   // 更新状态
   updateStatus()
-
+  
   // 刷新页面以应用新的数据模式
   setTimeout(() => {
     window.location.reload()
@@ -182,16 +182,16 @@ const updateStatus = () => {
     padding: 8px 12px;
     font-size: 12px;
   }
-
+  
   .toggle-container {
     gap: 8px;
   }
-
+  
   .toggle-text {
     font-size: 11px;
     min-width: 50px;
   }
-
+  
   .status-indicator {
     font-size: 10px;
     padding: 2px 6px;

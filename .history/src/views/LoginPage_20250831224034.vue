@@ -132,21 +132,15 @@ import { loginWithPassword } from '@/api/authApi'
 const router = useRouter()
 const loginFormRef = ref()
 const loading = ref(false)
-const isNewUser = ref(false)
 
 // 登录表单数据
 const loginForm = reactive({
-  username: '',
   phone: '',
   password: ''
 })
 
 // 表单验证规则
 const loginRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 20, message: '用户名长度在2-20个字符', trigger: 'blur' }
-  ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
@@ -155,19 +149,6 @@ const loginRules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码至少6位字符', trigger: 'blur' }
   ]
-}
-
-// 切换登录/注册模式
-const toggleMode = () => {
-  isNewUser.value = !isNewUser.value
-  // 清空表单
-  loginForm.username = ''
-  loginForm.phone = ''
-  loginForm.password = ''
-  // 清除验证错误
-  if (loginFormRef.value) {
-    loginFormRef.value.clearValidate()
-  }
 }
 
 // 生成粒子样式
@@ -204,50 +185,25 @@ const getPasswordStrengthWidth = () => {
   return '66%'
 }
 
-// 处理登录/注册
+// 处理登录
 const handleLogin = async () => {
   try {
     await loginFormRef.value.validate()
     loading.value = true
 
     // 调用后端API进行登录/注册
-    const result = await loginWithPassword({
-      username: loginForm.username,
-      phone: loginForm.phone,
-      password: loginForm.password,
-      isNewUser: isNewUser.value
-    })
+    const result = await loginWithPassword(loginForm)
 
     if (result.success) {
-      ElMessage.success(isNewUser.value ? '注册成功' : '登录成功')
+      ElMessage.success('登录成功')
       router.push('/display')
     } else {
-      ElMessage.error(result.message || (isNewUser.value ? '注册失败' : '登录失败'))
+      ElMessage.error(result.message || '登录失败')
     }
 
   } catch (error) {
-    console.error(isNewUser.value ? '注册失败:' : '登录失败:', error)
-
-    // 显示具体的错误信息
-    let errorMessage = error.message || (isNewUser.value ? '注册失败' : '登录失败')
-
-    // 根据错误类型显示不同的提示
-    if (error.response) {
-      const { status, data } = error.response
-      if (status === 400) {
-        errorMessage = data?.message || '请求参数错误，请检查输入信息'
-      } else if (status === 401) {
-        errorMessage = '用户名或密码错误'
-      } else if (status === 409) {
-        errorMessage = '用户名或手机号已存在'
-      } else {
-        errorMessage = data?.message || errorMessage
-      }
-    } else if (error.request) {
-      errorMessage = '网络连接失败，请检查网络设置'
-    }
-
-    ElMessage.error(errorMessage)
+    console.error('登录失败:', error)
+    ElMessage.error('登录失败，请检查输入信息')
   } finally {
     loading.value = false
   }
@@ -641,30 +597,6 @@ const handleLogin = async () => {
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   margin: 0 0 5px 0;
-}
-
-/* 模式切换按钮 */
-.mode-switch {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.switch-btn {
-  color: rgba(64, 224, 255, 0.8);
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.switch-btn:hover {
-  color: #40e0ff;
-  background: rgba(64, 224, 255, 0.1);
-  transform: translateY(-1px);
-}
-
-.switch-btn:active {
-  transform: translateY(0);
 }
 
 /* 动画 */

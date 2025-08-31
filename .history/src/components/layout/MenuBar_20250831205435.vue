@@ -96,8 +96,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { logout, getLocalUserInfo } from '@/api/authApi';
+import { ElMessage } from 'element-plus'; // 导入 ElMessage
 
 const router = useRouter();
 const route = useRoute();
@@ -125,7 +124,7 @@ const handleSelect = (key) => {
 };
 
 // 处理用户菜单命令
-const handleUserCommand = async (command) => {
+const handleUserCommand = (command) => {
   switch (command) {
     case 'profile':
       // TODO: 跳转到个人资料页面
@@ -137,37 +136,25 @@ const handleUserCommand = async (command) => {
       break;
     case 'logout':
       // 退出登录
-      await handleLogout();
+      handleLogout();
       break;
   }
 };
 
 // 退出登录处理
-const handleLogout = async () => {
-  try {
-    await logout();
-    ElMessage.success('已退出登录');
-    router.push('/login');
-  } catch (error) {
-    console.error('退出登录失败:', error);
-    // 即使API调用失败，也要清除本地数据并跳转
-    ElMessage.warning('退出登录时出现错误，已清除本地数据');
-    router.push('/login');
-  }
-};
+const handleLogout = () => {
+  // TODO: 调用退出登录API
+  // 清除本地存储的用户信息
+  localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
 
-// 获取用户信息
-const loadUserInfo = () => {
-  const userInfo = getLocalUserInfo();
-  if (userInfo) {
-    userName.value = userInfo.nickname || userInfo.username || '用户';
-  }
+  ElMessage.success('已退出登录');
+  router.push('/login');
 };
 
 onMounted(() => {
   updateTime();
   timer = setInterval(updateTime, 1000);
-  loadUserInfo();
 });
 
 onUnmounted(() => {

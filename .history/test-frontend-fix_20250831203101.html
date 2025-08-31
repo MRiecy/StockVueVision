@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端修复验证测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; background: #007bff; color: white; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .status { padding: 8px 12px; border-radius: 4px; margin: 5px 0; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 前端修复验证测试</h1>
+        
+        <div class="test-section info">
+            <h3>📋 修复内容说明</h3>
+            <p>本次修复解决了以下关键问题：</p>
+            <ul>
+                <li><strong>API实例问题</strong>：统一使用httpClient而不是独立的axios实例</li>
+                <li><strong>认证头缺失</strong>：确保所有API调用都包含Authorization头</li>
+                <li><strong>请求拦截器</strong>：统一处理认证和错误</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>1. 🔐 检查认证状态</h3>
+            <button onclick="checkAuthStatus()">检查认证状态</button>
+            <div id="authResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 🌐 测试API调用（无认证）</h3>
+            <button onclick="testApiWithoutAuth()">测试无认证API调用</button>
+            <div id="noAuthResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 🔑 测试API调用（有认证）</h3>
+            <button onclick="testApiWithAuth()">测试有认证API调用</button>
+            <div id="withAuthResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 📊 模拟完整流程</h3>
+            <button onclick="simulateFullFlow()">模拟完整流程</button>
+            <div id="fullFlowResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 🧹 清理测试数据</h3>
+            <button onclick="cleanupTestData()">清理测试数据</button>
+            <div id="cleanupResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // 检查认证状态
+        function checkAuthStatus() {
+            const resultDiv = document.getElementById('authResult');
+            const accessToken = localStorage.getItem('access_token');
+            const refreshToken = localStorage.getItem('refresh_token');
+            const userInfo = localStorage.getItem('user_info');
+
+            let html = '<h4>🔐 认证状态检查：</h4>';
+            
+            if (accessToken) {
+                html += '<div class="status success">✅ access_token 存在</div>';
+                html += `<p><strong>Token长度:</strong> ${accessToken.length} 字符</p>`;
+                html += `<p><strong>Token格式:</strong> ${accessToken.startsWith('eyJ') ? 'JWT格式' : '其他格式'}</p>`;
+            } else {
+                html += '<div class="status error">❌ access_token 不存在</div>';
+            }
+
+            if (refreshToken) {
+                html += '<div class="status success">✅ refresh_token 存在</div>';
+            } else {
+                html += '<div class="status warning">⚠️ refresh_token 不存在</div>';
+            }
+
+            if (userInfo) {
+                html += '<div class="status success">✅ user_info 存在</div>';
+                try {
+                    const user = JSON.parse(userInfo);
+                    html += `<p><strong>用户名:</strong> ${user.username || user.nickname || '未知'}</p>`;
+                } catch (e) {
+                    html += '<div class="status error">❌ user_info 格式错误</div>';
+                }
+            } else {
+                html += '<div class="status warning">⚠️ user_info 不存在</div>';
+            }
+
+            resultDiv.innerHTML = html;
+        }
+
+        // 测试无认证的API调用
+        async function testApiWithoutAuth() {
+            const resultDiv = document.getElementById('noAuthResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>🔄 正在测试无认证API调用...</p>';
+
+                const response = await fetch('http://localhost:8000/api/account-info/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                let html = '<h4>🌐 无认证API调用结果：</h4>';
+                html += `<p><strong>状态码:</strong> ${response.status}</p>`;
+                html += `<p><strong>状态文本:</strong> ${response.statusText}</p>`;
+                html += `<p><strong>响应数据:</strong></p>`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                if (response.status === 401) {
+                    html += '<div class="status success">✅ 正确：无认证时返回401</div>';
+                } else {
+                    html += '<div class="status error">❌ 错误：应该返回401</div>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h4 class="error">❌ 无认证API调用失败</h4>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        // 测试有认证的API调用
+        async function testApiWithAuth() {
+            const resultDiv = document.getElementById('withAuthResult');
+            const accessToken = localStorage.getItem('access_token');
+
+            if (!accessToken) {
+                resultDiv.innerHTML = '<div class="status error">❌ 没有access_token，无法测试有认证的API调用</div>';
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<p>🔄 正在测试有认证API调用...</p>';
+
+                const response = await fetch('http://localhost:8000/api/account-info/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                let html = '<h4>🔑 有认证API调用结果：</h4>';
+                html += `<p><strong>状态码:</strong> ${response.status}</p>`;
+                html += `<p><strong>状态文本:</strong> ${response.statusText}</p>`;
+                html += `<p><strong>响应数据:</strong></p>`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                if (response.status === 200) {
+                    html += '<div class="status success">✅ 成功：有认证时返回200</div>';
+                    if (data.accounts && data.accounts.length > 0) {
+                        html += '<div class="status success">✅ 数据完整：包含账户信息</div>';
+                    } else {
+                        html += '<div class="status warning">⚠️ 数据不完整：缺少账户信息</div>';
+                    }
+                } else if (response.status === 401) {
+                    html += '<div class="status error">❌ 失败：token可能无效或过期</div>';
+                } else {
+                    html += `<div class="status error">❌ 意外状态码：${response.status}</div>`;
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h4 class="error">❌ 有认证API调用失败</h4>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        // 模拟完整流程
+        async function simulateFullFlow() {
+            const resultDiv = document.getElementById('fullFlowResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>🔄 正在模拟完整流程...</p>';
+
+                // 步骤1：检查当前状态
+                const currentToken = localStorage.getItem('access_token');
+                let html = '<h4>🔄 完整流程模拟：</h4>';
+                
+                if (currentToken) {
+                    html += '<div class="status info">📋 步骤1：当前已有token，跳过登录</div>';
+                } else {
+                    html += '<div class="status info">📋 步骤1：当前没有token，需要登录</div>';
+                    html += '<p>请先登录获取token，然后重新测试</p>';
+                    resultDiv.innerHTML = html;
+                    return;
+                }
+
+                // 步骤2：测试API调用
+                html += '<div class="status info">📋 步骤2：测试API调用</div>';
+                
+                const response = await fetch('http://localhost:8000/api/account-info/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.status === 200) {
+                    html += '<div class="status success">✅ API调用成功</div>';
+                    html += `<p><strong>账户数量:</strong> ${data.accounts?.length || 0}</p>`;
+                    
+                    if (data.accounts && data.accounts.length > 0) {
+                        const account = data.accounts[0];
+                        html += `<p><strong>账户ID:</strong> ${account.account_id}</p>`;
+                        html += `<p><strong>总资产:</strong> ${account.total_asset?.toLocaleString() || 'N/A'}</p>`;
+                        html += `<p><strong>持仓数量:</strong> ${account.positions?.length || 0}</p>`;
+                    }
+                } else {
+                    html += `<div class="status error">❌ API调用失败，状态码：${response.status}</div>`;
+                }
+
+                // 步骤3：总结
+                html += '<div class="status info">📋 步骤3：流程总结</div>';
+                if (response.status === 200) {
+                    html += '<div class="status success">🎉 完整流程测试成功！前端修复有效！</div>';
+                } else {
+                    html += '<div class="status error">❌ 完整流程测试失败，需要进一步检查</div>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h4 class="error">❌ 完整流程模拟失败</h4>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        // 清理测试数据
+        function cleanupTestData() {
+            const resultDiv = document.getElementById('cleanupResult');
+            
+            // 只清理测试相关的临时数据，保留真实的认证信息
+            const keysToRemove = ['test_data', 'temp_data'];
+            let removedCount = 0;
+            
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    removedCount++;
+                }
+            });
+
+            resultDiv.innerHTML = `
+                <h4>🧹 清理结果：</h4>
+                <div class="status success">✅ 清理完成，移除了 ${removedCount} 个测试数据项</div>
+                <p><strong>注意：</strong> 真实的认证信息（access_token, refresh_token, user_info）已保留</p>
+            `;
+        }
+
+        // 页面加载时自动检查认证状态
+        window.onload = function() {
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html> 

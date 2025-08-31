@@ -29,25 +29,30 @@
         </div>
         <div class="time-display">{{ currentTime }}</div>
 
-        <!-- 用户菜单 -->
-        <div class="user-menu">
+        <!-- 用户信息区域 -->
+        <div class="user-section">
+          <div class="user-info">
+            <span class="user-name">{{ userName }}</span>
+            <span class="current-time">{{ currentTime }}</span>
+          </div>
+
+          <!-- 用户头像和下拉菜单 -->
           <el-dropdown @command="handleUserCommand" trigger="click">
             <div class="user-avatar">
-              <div class="avatar-circle">
-                <i class="avatar-icon">👤</i>
-              </div>
-              <span class="user-name">{{ userName }}</span>
+              <el-avatar :size="40" :src="userAvatar">
+                {{ userName.charAt(0).toUpperCase() }}
+              </el-avatar>
               <i class="el-icon-arrow-down"></i>
             </div>
             <template #dropdown>
-              <el-dropdown-menu class="user-dropdown">
+              <el-dropdown-menu>
                 <el-dropdown-item command="profile">
                   <i class="el-icon-user"></i>
                   个人资料
                 </el-dropdown-item>
                 <el-dropdown-item command="switch-account">
-                  <i class="el-icon-refresh"></i>
-                  切换账号
+                  <i class="el-icon-switch-button"></i>
+                  切换账户
                 </el-dropdown-item>
                 <el-dropdown-item divided command="logout">
                   <i class="el-icon-switch-button"></i>
@@ -96,8 +101,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { logout, getLocalUserInfo } from '@/api/authApi';
+import { ElMessage } from 'element-plus'; // 导入 ElMessage
 
 const router = useRouter();
 const route = useRoute();
@@ -125,7 +129,7 @@ const handleSelect = (key) => {
 };
 
 // 处理用户菜单命令
-const handleUserCommand = async (command) => {
+const handleUserCommand = (command) => {
   switch (command) {
     case 'profile':
       // TODO: 跳转到个人资料页面
@@ -137,37 +141,25 @@ const handleUserCommand = async (command) => {
       break;
     case 'logout':
       // 退出登录
-      await handleLogout();
+      handleLogout();
       break;
   }
 };
 
 // 退出登录处理
-const handleLogout = async () => {
-  try {
-    await logout();
-    ElMessage.success('已退出登录');
-    router.push('/login');
-  } catch (error) {
-    console.error('退出登录失败:', error);
-    // 即使API调用失败，也要清除本地数据并跳转
-    ElMessage.warning('退出登录时出现错误，已清除本地数据');
-    router.push('/login');
-  }
-};
+const handleLogout = () => {
+  // TODO: 调用退出登录API
+  // 清除本地存储的用户信息
+  localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
 
-// 获取用户信息
-const loadUserInfo = () => {
-  const userInfo = getLocalUserInfo();
-  if (userInfo) {
-    userName.value = userInfo.nickname || userInfo.username || '用户';
-  }
+  ElMessage.success('已退出登录');
+  router.push('/login');
 };
 
 onMounted(() => {
   updateTime();
   timer = setInterval(updateTime, 1000);
-  loadUserInfo();
 });
 
 onUnmounted(() => {
@@ -320,11 +312,37 @@ onUnmounted(() => {
   text-shadow: 0 0 5px rgba(64, 224, 255, 0.5);
 }
 
-/* 用户菜单 */
-.user-menu {
+/* 用户信息区域 */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
   margin-left: 20px;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-shadow: 0 0 5px rgba(64, 224, 255, 0.3);
+}
+
+.user-name {
+  font-size: 16px;
+  color: #40e0ff;
+  text-shadow: 0 0 5px rgba(64, 224, 255, 0.5);
+}
+
+.current-time {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 0 5px rgba(64, 224, 255, 0.3);
+}
+
+/* 用户头像 */
 .user-avatar {
   display: flex;
   align-items: center;
@@ -343,27 +361,14 @@ onUnmounted(() => {
   box-shadow: 0 0 15px rgba(64, 224, 255, 0.2);
 }
 
-.avatar-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.user-avatar .el-avatar {
   background: linear-gradient(135deg, #40e0ff, #1e90ff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   box-shadow: 0 0 10px rgba(64, 224, 255, 0.4);
 }
 
-.avatar-icon {
-  font-size: 16px;
+.user-avatar .el-avatar__inner {
+  font-size: 18px;
   color: white;
-}
-
-.user-name {
-  font-size: 14px;
-  color: white;
-  font-weight: 500;
-  text-shadow: 0 0 5px rgba(64, 224, 255, 0.3);
 }
 
 /* 用户下拉菜单 */

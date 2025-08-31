@@ -3,8 +3,23 @@
  * 包含登录、注册、token管理等功能
  */
 
+import axios from 'axios'
 import { httpClient } from '@/utils/httpClient'
 import { getMockDataSetting } from './mockData'
+
+// 创建不需要认证的HTTP客户端（用于登录和注册）
+const createAuthClient = () => {
+  return axios.create({
+    baseURL: 'http://localhost:8000', // 后端地址
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
+}
+
+const authClient = createAuthClient()
 
 // 模拟数据
 const mockAuthData = {
@@ -15,7 +30,7 @@ const mockAuthData = {
     data: {
       user: {
         user_id: 'user_demo_001',
-        phone: '13888888888',
+        username: 'demo_user',
         nickname: '演示用户',
         avatar: '',
         is_new_user: false,
@@ -31,12 +46,35 @@ const mockAuthData = {
     }
   },
 
+  // 模拟注册响应
+  registerResponse: {
+    success: true,
+    message: '注册成功',
+    data: {
+      user: {
+        user_id: 'user_new_001',
+        username: 'new_user',
+        nickname: '新用户',
+        avatar: '',
+        is_new_user: true,
+        created_at: new Date().toISOString(),
+        last_login: new Date().toISOString()
+      },
+      token: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_access_token',
+        refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_refresh_token',
+        token_type: 'Bearer',
+        expires_in: 3600
+      }
+    }
+  },
+
   // 模拟用户信息
   userProfile: {
     success: true,
     data: {
       user_id: 'user_demo_001',
-      phone: '13888888888',
+      username: 'demo_user',
       nickname: '演示用户',
       avatar: '',
       created_at: '2024-01-01T00:00:00Z',
@@ -58,22 +96,22 @@ const mockAuthData = {
 }
 
 /**
- * 用户名+手机号+密码登录/注册
+ * 用户名密码登录/注册
  * @param {Object} authData - 认证数据
- * @param {string} authData.username - 用户名（注册时必填）
- * @param {string} authData.phone - 手机号码
+ * @param {string} authData.username - 用户名
  * @param {string} authData.password - 密码
  * @param {boolean} authData.isNewUser - 是否为新用户注册
  * @returns {Promise<Object>} 登录/注册结果
  */
 export const loginWithPassword = async (authData) => {
   if (getMockDataSetting()) {
-    console.log('🔄 [Mock] 用户名+手机号+密码认证:', authData)
+    console.log('🔄 [Mock] 用户名密码认证:', authData)
     // 模拟网络延迟
     await new Promise(resolve => setTimeout(resolve, 1200))
 
-    // 模拟登录成功，保存token
-    const response = mockAuthData.loginResponse
+    // 根据是否为新用户返回不同的响应
+    const response = authData.isNewUser ? mockAuthData.registerResponse : mockAuthData.loginResponse
+
     if (response.success) {
       const { access_token, refresh_token } = response.data.token
       localStorage.setItem('access_token', access_token)
@@ -88,9 +126,8 @@ export const loginWithPassword = async (authData) => {
     const endpoint = authData.isNewUser ? '/api/auth/register/' : '/api/auth/login/'
     console.log(`🔐 发送${authData.isNewUser ? '注册' : '登录'}请求:`, endpoint, authData)
 
-    const response = await httpClient.post(endpoint, {
+    const response = await authClient.post(endpoint, {
       username: authData.username,
-      phone: authData.phone,
       password: authData.password
     })
 
@@ -116,7 +153,7 @@ export const loginWithPassword = async (authData) => {
       } else if (status === 400) {
         throw new Error(data?.message || '请求参数错误')
       } else if (status === 409) {
-        throw new Error('用户名或手机号已存在')
+        throw new Error('用户名已存在')
       } else {
         throw new Error(data?.message || `${authData.isNewUser ? '注册' : '登录'}失败`)
       }
@@ -271,13 +308,14 @@ export const clearAuthData = () => {
 }
 
 /**
- * 验证手机号格式
- * @param {string} phone - 手机号
+ * 验证用户名格式
+ * @param {string} username - 用户名
  * @returns {boolean} 是否有效
  */
-export const validatePhone = (phone) => {
-  const phoneRegex = /^1[3-9]\d{9}$/
-  return phoneRegex.test(phone)
+export const validateUsername = (username) => {
+  // 用户名长度3-20位，只能包含字母、数字、下划线
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
+  return usernameRegex.test(username)
 }
 
 /**
@@ -301,6 +339,6 @@ export default {
   getAccessToken,
   getRefreshToken,
   clearAuthData,
-  validatePhone,
+  validateUsername,
   validatePassword
 }

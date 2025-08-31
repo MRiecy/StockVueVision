@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端API测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>前端API测试工具</h1>
+    
+    <div class="test-section info">
+        <h3>测试说明</h3>
+        <p>这个页面用于测试前端API调用是否正常工作，包括：</p>
+        <ul>
+            <li>检查localStorage中的token</li>
+            <li>测试API请求头设置</li>
+            <li>验证API调用流程</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>1. 检查localStorage状态</h3>
+        <button onclick="checkLocalStorage()">检查localStorage</button>
+        <div id="localStorageResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 测试API请求头</h3>
+        <button onclick="testRequestHeaders()">测试请求头</button>
+        <div id="headersResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 测试API调用</h3>
+        <button onclick="testApiCall()">测试API调用</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 模拟登录流程</h3>
+        <button onclick="simulateLogin()">模拟登录</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        // 检查localStorage状态
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('localStorageResult');
+            const accessToken = localStorage.getItem('access_token');
+            const refreshToken = localStorage.getItem('refresh_token');
+            const userInfo = localStorage.getItem('user_info');
+
+            let html = '<h4>localStorage状态：</h4>';
+            html += `<p><strong>access_token:</strong> ${accessToken ? '✅ 存在' : '❌ 不存在'}</p>`;
+            html += `<p><strong>refresh_token:</strong> ${refreshToken ? '✅ 存在' : '❌ 不存在'}</p>`;
+            html += `<p><strong>user_info:</strong> ${userInfo ? '✅ 存在' : '❌ 不存在'}</p>`;
+
+            if (accessToken) {
+                html += `<p><strong>Token长度:</strong> ${accessToken.length} 字符</p>`;
+                html += `<p><strong>Token前缀:</strong> ${accessToken.startsWith('eyJ') ? '✅ JWT格式' : '❌ 非JWT格式'}</p>`;
+            }
+
+            resultDiv.innerHTML = html;
+        }
+
+        // 测试请求头设置
+        function testRequestHeaders() {
+            const resultDiv = document.getElementById('headersResult');
+            const accessToken = localStorage.getItem('access_token');
+
+            let html = '<h4>请求头测试：</h4>';
+
+            if (accessToken) {
+                const headers = {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                };
+
+                html += '<p><strong>Authorization头:</strong></p>';
+                html += `<pre>${headers.Authorization}</pre>`;
+                html += '<p><strong>完整请求头:</strong></p>';
+                html += `<pre>${JSON.stringify(headers, null, 2)}</pre>`;
+            } else {
+                html += '<p class="error">❌ 没有access_token，无法设置Authorization头</p>';
+            }
+
+            resultDiv.innerHTML = html;
+        }
+
+        // 测试API调用
+        async function testApiCall() {
+            const resultDiv = document.getElementById('apiResult');
+            const accessToken = localStorage.getItem('access_token');
+
+            if (!accessToken) {
+                resultDiv.innerHTML = '<p class="error">❌ 没有access_token，无法测试API调用</p>';
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<p>🔄 正在测试API调用...</p>';
+
+                const response = await fetch('http://localhost:8000/api/account-info/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                let html = '<h4>API调用结果：</h4>';
+                html += `<p><strong>状态码:</strong> ${response.status}</p>`;
+                html += `<p><strong>状态文本:</strong> ${response.statusText}</p>`;
+                html += `<p><strong>响应数据:</strong></p>`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                if (response.ok) {
+                    html = html.replace('<h4>', '<h4 class="success">✅ ');
+                } else {
+                    html = html.replace('<h4>', '<h4 class="error">❌ ');
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h4 class="error">❌ API调用失败</h4>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                    <p><strong>错误类型:</strong> ${error.name}</p>
+                `;
+            }
+        }
+
+        // 模拟登录流程
+        async function simulateLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                resultDiv.innerHTML = '<p>🔄 正在模拟登录...</p>';
+
+                const loginData = {
+                    username: 'testuser',
+                    password: 'testpass123'
+                };
+
+                const response = await fetch('http://localhost:8000/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const data = await response.json();
+
+                let html = '<h4>登录测试结果：</h4>';
+                html += `<p><strong>状态码:</strong> ${response.status}</p>`;
+                html += `<p><strong>状态文本:</strong> ${response.statusText}</p>`;
+                html += `<p><strong>响应数据:</strong></p>`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                if (response.ok && data.success) {
+                    html += '<p class="success">✅ 登录成功！现在可以测试其他API调用</p>';
+                    // 自动保存token到localStorage
+                    if (data.data && data.data.token) {
+                        localStorage.setItem('access_token', data.data.token.access_token);
+                        localStorage.setItem('refresh_token', data.data.token.refresh_token);
+                        localStorage.setItem('user_info', JSON.stringify(data.data.user));
+                        html += '<p class="success">✅ Token已保存到localStorage</p>';
+                    }
+                } else {
+                    html += '<p class="error">❌ 登录失败</p>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h4 class="error">❌ 登录测试失败</h4>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                    <p><strong>错误类型:</strong> ${error.name}</p>
+                `;
+            }
+        }
+
+        // 页面加载时自动检查localStorage
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html> 

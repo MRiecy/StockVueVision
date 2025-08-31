@@ -34,7 +34,7 @@ const router = createRouter({
   routes
 })
 
-// 启用路由守卫：确保用户必须先登录
+// 路由守卫：确保用户必须先登录
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth !== false
   const isLoggedIn = isAuthenticated()
