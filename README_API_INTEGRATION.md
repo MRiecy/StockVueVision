@@ -1,5 +1,7 @@
 # StockVueVision API对接方案总结
 
+> **📝 更新说明**: 2024年最新版本已更新为手机号密码登录方式，首次使用自动注册，不再需要验证码。
+
 ## 📋 项目概述
 
 StockVueVision是一个基于Vue 3的股票投资决策系统前端项目，本文档总结了前端与后端API对接的完整方案。
@@ -64,8 +66,7 @@ StockVueVision是一个基于Vue 3的股票投资决策系统前端项目，本�
 ### 用户认证
 | 接口 | 路径 | 方法 | 功能 | 认证 |
 |------|------|------|------|------|
-| 发送验证码 | `/api/auth/send-code/` | POST | 发送手机验证码 | ❌ |
-| 登录/注册 | `/api/auth/login/` | POST | 手机号验证码登录 | ❌ |
+| 登录/注册 | `/api/auth/login/` | POST | 手机号密码登录，首次使用自动注册 | ❌ |
 | 刷新令牌 | `/api/auth/refresh/` | POST | 刷新访问令牌 | 🔑 |
 | 退出登录 | `/api/auth/logout/` | POST | 注销用户会话 | 🔑 |
 | 用户信息 | `/api/auth/profile/` | GET | 获取当前用户信息 | 🔑 |
@@ -142,7 +143,7 @@ if (validateData(transformedData, 'array')) {
 - 双Token机制（access_token + refresh_token）
 - 自动token刷新
 - 未授权自动跳转登录页
-- 手机号验证码登录
+- 手机号密码登录，首次使用自动注册
 
 ### 2. 数据安全
 - 请求参数验证
@@ -162,7 +163,6 @@ if (validateData(transformedData, 'array')) {
 - 股票报价: 30秒
 - 图表数据: 10分钟
 - 策略结果: 2分钟
-- 验证码状态: 60秒
 
 ### 2. 请求优化
 - 请求去重

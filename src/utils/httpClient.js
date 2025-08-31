@@ -19,7 +19,7 @@ const createHttpClient = () => {
   instance.interceptors.request.use(
     (config) => {
       // 添加认证token
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -93,7 +93,7 @@ const handleApiError = (error) => {
         errorInfo.message = ERROR_MESSAGES.UNAUTHORIZED;
         errorInfo.code = 'UNAUTHORIZED';
         // 清除本地token，跳转到登录页
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('access_token');
         // 可以在这里添加路由跳转逻辑
         break;
 

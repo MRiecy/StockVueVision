@@ -1,6 +1,6 @@
 /**
  * 用户认证相关API接口
- * 包含登录、注册、验证码、token管理等功能
+ * 包含登录、注册、token管理等功能
  */
 
 import { httpClient } from '@/utils/httpClient'
@@ -8,17 +8,7 @@ import { getMockDataSetting } from './mockData'
 
 // 模拟数据
 const mockAuthData = {
-  // 模拟验证码发送响应
-  sendCodeResponse: {
-    success: true,
-    message: '验证码已发送',
-    data: {
-      expire_time: 300,
-      can_resend_time: 60
-    }
-  },
-
-  // 模拟登录响应
+  // 模拟密码登录响应
   loginResponse: {
     success: true,
     message: '登录成功',
@@ -68,39 +58,15 @@ const mockAuthData = {
 }
 
 /**
- * 发送手机验证码
- * @param {string} phone - 手机号码
- * @returns {Promise<Object>} 发送结果
- */
-export const sendVerificationCode = async (phone) => {
-  if (getMockDataSetting()) {
-    console.log('🔄 [Mock] 发送验证码:', phone)
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
-    return mockAuthData.sendCodeResponse
-  }
-
-  try {
-    const response = await httpClient.post('/api/auth/send-code/', {
-      phone: phone
-    })
-    return response.data
-  } catch (error) {
-    console.error('发送验证码失败:', error)
-    throw error
-  }
-}
-
-/**
- * 手机号验证码登录/注册
+ * 手机号密码登录/注册
  * @param {Object} loginData - 登录数据
  * @param {string} loginData.phone - 手机号码
- * @param {string} loginData.code - 验证码
+ * @param {string} loginData.password - 密码
  * @returns {Promise<Object>} 登录结果
  */
-export const loginWithPhone = async (loginData) => {
+export const loginWithPassword = async (loginData) => {
   if (getMockDataSetting()) {
-    console.log('🔄 [Mock] 手机号登录:', loginData)
+    console.log('🔄 [Mock] 手机号密码登录:', loginData)
     // 模拟网络延迟
     await new Promise(resolve => setTimeout(resolve, 1200))
 
@@ -119,7 +85,7 @@ export const loginWithPhone = async (loginData) => {
   try {
     const response = await httpClient.post('/api/auth/login/', {
       phone: loginData.phone,
-      code: loginData.code
+      password: loginData.password
     })
 
     // 保存认证信息
@@ -290,19 +256,18 @@ export const validatePhone = (phone) => {
 }
 
 /**
- * 验证验证码格式
- * @param {string} code - 验证码
+ * 验证密码格式
+ * @param {string} password - 密码
  * @returns {boolean} 是否有效
  */
-export const validateCode = (code) => {
-  const codeRegex = /^\d{6}$/
-  return codeRegex.test(code)
+export const validatePassword = (password) => {
+  // 简单的密码长度要求，实际应用中应更严格
+  return password.length >= 6
 }
 
 // 导出所有API函数
 export default {
-  sendVerificationCode,
-  loginWithPhone,
+  loginWithPassword,
   refreshAccessToken,
   logout,
   getCurrentUser,
@@ -312,5 +277,5 @@ export default {
   getRefreshToken,
   clearAuthData,
   validatePhone,
-  validateCode
+  validatePassword
 }

@@ -44,24 +44,29 @@
             />
           </el-form-item>
 
-          <!-- 验证码输入 -->
-          <el-form-item prop="code">
-            <div class="code-input-group">
-              <el-input
-                v-model="loginForm.code"
-                placeholder="请输入验证码"
-                prefix-icon="Key"
-                class="custom-input code-input"
-                size="large"
-              />
-              <el-button
-                type="primary"
-                class="send-code-btn"
-                :disabled="countdown > 0"
-                @click="sendCode"
-              >
-                {{ countdown > 0 ? `${countdown}s` : '发送验证码' }}
-              </el-button>
+          <!-- 密码输入 -->
+          <el-form-item prop="password">
+            <el-input
+              v-model="loginForm.password"
+              type="password"
+              placeholder="请输入密码"
+              prefix-icon="Lock"
+              class="custom-input"
+              size="large"
+              show-password
+            />
+            <div class="password-hint">
+              <span class="hint-text">密码至少6位字符</span>
+              <div class="password-strength" v-if="loginForm.password.length > 0">
+                <span class="strength-label">强度:</span>
+                <span class="strength-bar">
+                  <span
+                    class="strength-fill"
+                    :class="getPasswordStrengthClass()"
+                    :style="{ width: getPasswordStrengthWidth() }"
+                  ></span>
+                </span>
+              </div>
             </div>
           </el-form-item>
 
@@ -84,6 +89,9 @@
           <p class="footer-text">
             首次使用手机号登录将自动注册账号
           </p>
+          <p class="footer-text">
+            密码至少6位字符，支持字母、数字、特殊字符
+          </p>
         </div>
       </div>
     </div>
@@ -94,16 +102,16 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { loginWithPassword } from '@/api/authApi'
 
 const router = useRouter()
 const loginFormRef = ref()
 const loading = ref(false)
-const countdown = ref(0)
 
 // 登录表单数据
 const loginForm = reactive({
   phone: '',
-  code: ''
+  password: ''
 })
 
 // 表单验证规则
@@ -112,9 +120,9 @@ const loginRules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
-  code: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码至少6位字符', trigger: 'blur' }
   ]
 }
 
@@ -134,26 +142,22 @@ const getParticleStyle = () => {
   }
 }
 
-// 发送验证码
-const sendCode = async () => {
-  try {
-    // 验证手机号
-    await loginFormRef.value.validateField('phone')
+// 获取密码强度样式类
+const getPasswordStrengthClass = () => {
+  const password = loginForm.password
+  if (password.length < 6) return 'weak'
+  if (password.length < 8) return 'medium'
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)) return 'strong'
+  return 'medium'
+}
 
-    // TODO: 调用后端API发送验证码
-    // await sendVerificationCode(loginForm.phone)
-
-    ElMessage.success('验证码已发送')
-    countdown.value = 60
-    const timer = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) {
-        clearInterval(timer)
-      }
-    }, 1000)
-  } catch (error) {
-    console.error('发送验证码失败:', error)
-  }
+// 获取密码强度宽度
+const getPasswordStrengthWidth = () => {
+  const password = loginForm.password
+  if (password.length < 6) return '33%'
+  if (password.length < 8) return '66%'
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)) return '100%'
+  return '66%'
 }
 
 // 处理登录
@@ -162,14 +166,15 @@ const handleLogin = async () => {
     await loginFormRef.value.validate()
     loading.value = true
 
-    // TODO: 调用后端API进行登录/注册
-    // const result = await login(loginForm)
+    // 调用后端API进行登录/注册
+    const result = await loginWithPassword(loginForm)
 
-    // 模拟登录成功
-    setTimeout(() => {
+    if (result.success) {
       ElMessage.success('登录成功')
       router.push('/display')
-    }, 1000)
+    } else {
+      ElMessage.error(result.message || '登录失败')
+    }
 
   } catch (error) {
     console.error('登录失败:', error)
@@ -489,38 +494,50 @@ const handleLogin = async () => {
   text-shadow: 0 0 10px rgba(64, 224, 255, 0.8);
 }
 
-/* 验证码输入组 */
-.code-input-group {
+/* 密码强度提示样式 */
+.password-hint {
+  margin-top: 10px;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
 }
 
-.code-input {
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100px;
+}
+
+.strength-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.strength-bar {
   flex: 1;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.send-code-btn {
-  background: linear-gradient(135deg, #40e0ff, #1e90ff);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-weight: 500;
-  padding: 0 20px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+.strength-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease-in-out;
 }
 
-.send-code-btn:hover {
-  background: linear-gradient(135deg, #1e90ff, #40e0ff);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(64, 224, 255, 0.4);
+.strength-fill.weak {
+  background-color: #ff6b6b;
 }
-
-.send-code-btn:disabled {
-  background: rgba(255, 255, 255, 0.2);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.strength-fill.medium {
+  background-color: #ffd700;
+}
+.strength-fill.strong {
+  background-color: #40e0ff;
 }
 
 /* 登录按钮 */
@@ -554,7 +571,7 @@ const handleLogin = async () => {
 .footer-text {
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
-  margin: 0;
+  margin: 0 0 5px 0;
 }
 
 /* 动画 */
