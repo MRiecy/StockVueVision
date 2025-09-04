@@ -258,18 +258,15 @@ export const mockRegionComparisonData = {
   ]
 };
 
-// 导出是否使用模拟数据的标志
+// 导出是否使用模拟数据的标志 - 强制禁用模拟数据
 export const USE_MOCK_DATA = false;
 
 /**
  * 获取数据模式设置
- * 优先从localStorage读取，如果没有则使用默认的USE_MOCK_DATA
+ * 强制返回false，确保只使用真实数据
  * @returns {boolean} 是否使用模拟数据
  */
 export function getMockDataSetting() {
-  const stored = localStorage.getItem('useMockData');
-  if (stored !== null) {
-    return stored === 'true';
-  }
-  return USE_MOCK_DATA;
+  // 强制使用真实数据，忽略所有设置
+  return false;
 }

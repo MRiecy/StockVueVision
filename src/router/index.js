@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import DisplayPage from '@/views/DisplayPage.vue'
 import ComparisonPage from '@/views/ComparisonPage.vue'
 import LoginPage from '@/views/LoginPage.vue'
@@ -7,7 +7,7 @@ import { isAuthenticated } from '@/api/authApi'
 const routes = [
   {
     path: '/',
-    redirect: '/login'  // 默认重定向到登录页
+    redirect: '/display'  // 默认重定向到数据展示页
   },
   {
     path: '/login',

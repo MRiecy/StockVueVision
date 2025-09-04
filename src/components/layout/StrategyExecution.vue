@@ -1,27 +1,29 @@
-<template>
+﻿<template>
   <div class="strategy-execution">
     <div class="strategy-display-module">
       <div class="title">当前执行策略</div>
       <div class="select-container">
-        <el-select v-model="selectedStrategy" placeholder="请选择策略" @change="handleStrategyChange">
+        <el-select v-model="selectedStrategyId" placeholder="请选择策略" @change="handleStrategyChange">
           <el-option
-            v-for="strategy in strategies"
-            :key="strategy.id"
-            :label="strategy.name"
-            :value="strategy"
+            v-for="s in strategies"
+            :key="s.id"
+            :label="s.name"
+            :value="s.id"
           />
         </el-select>
       </div>
+
       <div class="strategy-description">
         <div class="title">策略简介</div>
         <div>{{ selectedStrategy.description }}</div>
       </div>
+
       <div class="strategy-parameters">
         <div class="title">策略参数设置</div>
-        <el-table :data="selectedStrategy.parameters" style="width: 100%">
-          <el-table-column prop="paramKey" label="参数名称" />
-          <el-table-column prop="paramValue" label="参数值" />
-          <el-table-column prop="description" label="描述" />
+        <el-table :data="selectedStrategy.parameters || []" style="width: 100%">
+          <el-table-column prop="paramKey" label="参数名称"></el-table-column>
+          <el-table-column prop="paramValue" label="参数值"></el-table-column>
+          <el-table-column prop="description" label="描述"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -29,51 +31,23 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-// import axios from 'axios';
+import { ref, computed, onMounted } from 'vue'
 
 export default {
   name: 'StrategyExecution',
   setup() {
-    const strategies = ref([]);
-    const selectedStrategy = ref({
-      description: '',
-      parameters: []
-    });
+    const strategies = ref([])
+    const selectedStrategyId = ref(null)
 
-    const fetchStrategies = async () => {
-      try {
-        // 注释掉不存在的接口请求，避免404报错
-        // const response = await axios.get('/api/strategies/');
-        // if (response.data && response.data.strategies && response.data.strategies.length > 0) {
-        //   strategies.value = response.data.strategies;
-        //   selectedStrategy.value = response.data.strategies[0];
-        //   if (!selectedStrategy.value.parameters) {
-        //     selectedStrategy.value.parameters = [];
-        //   }
-        // } else {
-        //   console.warn('获取到的策略数据格式不正确或为空，使用默认策略数据');
-        //   // 使用完整的默认策略数据
-        //   strategies.value = defaultStrategies;
-        //   selectedStrategy.value = strategies.value[0];
-        // }
-
-        // 直接使用默认策略数据，避免接口缺失导致的错误
-        strategies.value = defaultStrategies;
-        selectedStrategy.value = strategies.value[0] || { description: '', parameters: [] };
-      } catch (error) {
-        console.error('获取策略列表失败：', error);
-        console.log('使用默认策略数据');
-        strategies.value = defaultStrategies;
-        selectedStrategy.value = strategies.value[0] || { description: '', parameters: [] };
-      }
-    };
+    const selectedStrategy = computed(() => {
+      return strategies.value.find(s => s.id === selectedStrategyId.value) || { description: '', parameters: [] }
+    })
 
     const defaultStrategies = [
       {
         id: 1,
         name: '量化选股策略',
-        description: '基于PE、PB等基本面指标的价值投资策略，专注于寻找被低估的优质股票',
+        description: '基于基本面指标的价值策略示例',
         parameters: [
           { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
           { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
@@ -84,43 +58,43 @@ export default {
       {
         id: 2,
         name: 'ETF策略',
-        description: '基于价格和成交量的技术分析策略，捕捉市场短期趋势',
+        description: '基于趋势的ETF策略示例',
         parameters: [
-          { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
-          { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
-          { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
-          { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+          { paramKey: 'ETF品种', paramValue: '多只', description: '参与的ETF品种' },
+          { paramKey: '最大仓位', paramValue: '80%', description: '全部ETF的总持仓上限' }
         ]
       },
       {
         id: 3,
         name: '灵活对冲策略',
-        description: '基于股价偏离均值的统计套利策略，适合震荡市场',
+        description: '统计套利思路的对冲策略示例',
         parameters: [
-          { paramKey: '股票数量', paramValue: '10', description: '最终持有的股票数量' },
-          { paramKey: '选股范围', paramValue: '沪深A股', description: '可选股票的市场范围' },
-          { paramKey: '最大仓位', paramValue: '80%', description: '全部股票的总持仓上限' },
-          { paramKey: '个股仓位', paramValue: '10%', description: '单只股票最大持仓比例' }
+          { paramKey: '对冲比例', paramValue: '50%', description: '多空头寸比例' }
         ]
       }
-    ];
+    ]
 
-    onMounted(fetchStrategies);
+    const fetchStrategies = async () => {
+      strategies.value = defaultStrategies
+      selectedStrategyId.value = strategies.value[0]?.id ?? null
+    }
+
+    onMounted(fetchStrategies)
 
     const handleStrategyChange = () => {
-      console.log('当前选中策略：', selectedStrategy.value);
-      if (selectedStrategy.value && !selectedStrategy.value.parameters) {
-        selectedStrategy.value.parameters = [];
+      if (!Array.isArray(selectedStrategy.value.parameters)) {
+        selectedStrategy.value.parameters = []
       }
-    };
+    }
 
     return {
       strategies,
+      selectedStrategyId,
       selectedStrategy,
-      handleStrategyChange,
-    };
-  },
-};
+      handleStrategyChange
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -131,7 +105,6 @@ export default {
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  /* overflow: hidden; */
 }
 
 .strategy-display-module {
@@ -143,156 +116,16 @@ export default {
   border: 1px solid rgba(64, 224, 255, 0.3);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.2),
-    0 0 20px rgba(64, 224, 255, 0.1);
-  /* overflow: hidden; */
 }
 
 .title {
   font-size: 12px;
   font-weight: bold;
   margin-bottom: 6px;
-  color: #000000;
-  text-shadow: 0 0 8px rgba(64, 224, 255, 0.6);
-  flex-shrink: 0;
+  color: #000;
 }
 
-.select-container {
-  margin-bottom: 6px;
-  flex-shrink: 0;
-}
-
-.strategy-description {
-  margin-top: 6px;
-  margin-bottom: 8px;
-  padding: 8px;
-  background: rgba(64, 224, 255, 0.1);
-  border: 1px solid rgba(64, 224, 255, 0.2);
-  border-radius: 6px;
-  font-size: 10px;
-  color: #000000;
-  backdrop-filter: blur(5px);
-  line-height: 1.3;
-}
-
-.strategy-parameters {
-  margin-top: 6px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.strategy-parameters .title {
-  margin-bottom: 6px;
-}
-
-.el-select {
-  width: 100%;
-}
-
-/* Element UI组件深色主题适配 */
-:deep(.el-select .el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(64, 224, 255, 0.3) !important;
-  border-radius: 4px;
-}
-
-:deep(.el-select .el-input__wrapper:hover) {
-  border-color: rgba(64, 224, 255, 0.5) !important;
-}
-
-:deep(.el-select .el-input__wrapper.is-focus) {
-  border-color: rgba(64, 224, 255, 0.6) !important;
-  box-shadow: 0 0 10px rgba(64, 224, 255, 0.3) !important;
-}
-
-:deep(.el-input__inner) {
-  color: #000000 !important;
-  background: transparent !important;
-  font-size: 11px;
-  padding: 3px 8px;
-  height: 28px !important;
-  line-height: 28px !important;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: rgba(0, 0, 0, 0.6) !important;
-}
-
-:deep(.el-input) {
-  height: 28px !important;
-}
-
-:deep(.el-input__wrapper) {
-  height: 28px !important;
-  padding: 0 8px !important;
-}
-
-:deep(.el-table) {
-  background: transparent !important;
-  color: #000000 !important;
-  font-size: 10px;
-  border: none !important;
-}
-
-:deep(.el-table .el-table__header-wrapper) {
-  background: transparent !important;
-}
-
-:deep(.el-table .el-table__body-wrapper) {
-  background: transparent !important;
-  max-height: none !important;
-}
-
-:deep(.el-table th.el-table__cell) {
-  background: rgba(64, 224, 255, 0.2) !important;
-  color: #000000 !important;
-  border-bottom: 1px solid rgba(64, 224, 255, 0.3) !important;
-  padding: 2px 6px !important;
-  font-size: 10px;
-  font-weight: bold !important;
-  height: 28px !important;
-}
-
-:deep(.el-table td.el-table__cell) {
-  background: transparent !important;
-  color: #000000 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding: 2px 6px !important;
-  font-size: 10px;
-  line-height: 1.2;
-  height: 26px !important;
-}
-
-:deep(.el-table tr:hover td) {
-  background: rgba(64, 224, 255, 0.1) !important;
-}
-
-:deep(.el-table .cell) {
-  padding: 0 !important;
-  line-height: 1.2 !important;
-}
-
-/* 下拉选项样式 */
-:deep(.el-select-dropdown) {
-  background: rgba(26, 31, 58, 0.95) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(64, 224, 255, 0.3) !important;
-}
-
-:deep(.el-select-dropdown .el-option) {
-  color: #000000 !important;
-  background: transparent !important;
-}
-
-:deep(.el-select-dropdown .el-option:hover) {
-  background: rgba(64, 224, 255, 0.2) !important;
-}
-
-:deep(.el-select-dropdown .el-option.is-selected) {
-  background: rgba(64, 224, 255, 0.3) !important;
-  color: #000000 !important;
-}
+.select-container { margin-bottom: 6px; }
+.strategy-description { margin: 6px 0 8px; padding: 8px; background: rgba(64,224,255,0.1); border: 1px solid rgba(64,224,255,0.2); border-radius: 6px; font-size: 10px; color: #000; }
+.strategy-parameters { margin-top: 6px; flex: 1; display: flex; flex-direction: column; }
 </style>

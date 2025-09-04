@@ -1,0 +1,702 @@
+<template>
+  <div class="login-container">
+    <!-- 背景粒子效果 -->
+    <div class="background-particles">
+      <div v-for="n in 30" :key="n" class="particle" :style="getParticleStyle()"></div>
+    </div>
+
+    <!-- 登录卡片 -->
+    <div class="login-card glass-effect">
+      <!-- 顶部装饰 -->
+      <div class="card-decoration">
+        <div class="decoration-line"></div>
+        <div class="corner-accent left"></div>
+        <div class="corner-accent right"></div>
+      </div>
+
+      <!-- Logo区域 -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <div class="icon-circle">
+            <i class="icon-stock"></i>
+          </div>
+        </div>
+        <h1 class="system-title">股票决策可视化系统</h1>
+        <p class="system-subtitle">Stock Vision Analytics</p>
+      </div>
+
+      <!-- 登录表单 -->
+      <div class="form-section">
+        <el-form
+          ref="loginFormRef"
+          :model="loginForm"
+          :rules="loginRules"
+          class="login-form"
+        >
+          <!-- 用户名输入（注册时显示） -->
+          <el-form-item prop="username" v-if="isNewUser">
+            <el-input
+              v-model="loginForm.username"
+              placeholder="请输入用户名"
+              prefix-icon="User"
+              class="custom-input"
+              size="large"
+            />
+          </el-form-item>
+
+          <!-- 手机号输入 -->
+          <el-form-item prop="phone">
+            <el-input
+              v-model="loginForm.phone"
+              placeholder="请输入手机号"
+              prefix-icon="Phone"
+              class="custom-input"
+              size="large"
+            />
+          </el-form-item>
+
+          <!-- 密码输入 -->
+          <el-form-item prop="password">
+            <el-input
+              v-model="loginForm.password"
+              type="password"
+              placeholder="请输入密码"
+              prefix-icon="Lock"
+              class="custom-input"
+              size="large"
+              show-password
+            />
+            <div class="password-hint">
+              <span class="hint-text">密码至少6位字符</span>
+              <div class="password-strength" v-if="loginForm.password.length > 0">
+                <span class="strength-label">强度:</span>
+                <span class="strength-bar">
+                  <span
+                    class="strength-fill"
+                    :class="getPasswordStrengthClass()"
+                    :style="{ width: getPasswordStrengthWidth() }"
+                  ></span>
+                </span>
+              </div>
+            </div>
+          </el-form-item>
+
+          <!-- 登录/注册按钮 -->
+          <el-form-item>
+            <el-button
+              type="primary"
+              class="login-btn"
+              size="large"
+              :loading="loading"
+              @click="handleLogin"
+            >
+              {{ isNewUser ? '注册账号' : '登录 / 注册' }}
+            </el-button>
+          </el-form-item>
+        </el-form>
+
+        <!-- 切换模式按钮 -->
+        <div class="mode-switch">
+          <el-button
+            type="text"
+            class="switch-btn"
+            @click="toggleMode"
+          >
+            {{ isNewUser ? '已有账号？点击登录' : '新用户？点击注册' }}
+          </el-button>
+        </div>
+
+        <!-- 底部说明 -->
+        <div class="login-footer">
+          <p class="footer-text" v-if="!isNewUser">
+            首次使用手机号登录将自动注册账号
+          </p>
+          <p class="footer-text" v-if="isNewUser">
+            注册成功后即可使用系统功能
+          </p>
+          <p class="footer-text">
+            密码至少6位字符，支持字母、数字、特殊字符
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { loginWithPassword, isAuthenticated } from '@/api/authApi'
+
+const router = useRouter()
+const loginFormRef = ref()
+const loading = ref(false)
+const isNewUser = ref(false)
+
+// 组件挂载时执行
+onMounted(() => {
+  // 清除可能存在的模拟数据设置，强制使用真实API
+  localStorage.removeItem('useMockData');
+
+  // 检查用户是否已登录
+  if (isAuthenticated()) {
+    router.push('/display')
+  }
+})
+
+// 登录表单数据
+const loginForm = reactive({
+  username: '',
+  phone: '',
+  password: ''
+})
+
+// 表单验证规则
+const loginRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, max: 20, message: '用户名长度在2-20个字符', trigger: 'blur' }
+  ],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码至少6位字符', trigger: 'blur' }
+  ]
+}
+
+// 切换登录/注册模式
+const toggleMode = () => {
+  isNewUser.value = !isNewUser.value
+  // 清空表单
+  loginForm.username = ''
+  loginForm.phone = ''
+  loginForm.password = ''
+  // 清除验证错误
+  if (loginFormRef.value) {
+    loginFormRef.value.clearValidate()
+  }
+}
+
+// 生成粒子样式
+const getParticleStyle = () => {
+  const size = Math.random() * 3 + 1
+  const animationDuration = Math.random() * 20 + 10
+  const left = Math.random() * 100
+  const animationDelay = Math.random() * 20
+
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${left}%`,
+    animationDuration: `${animationDuration}s`,
+    animationDelay: `${animationDelay}s`
+  }
+}
+
+// 获取密码强度样式类
+const getPasswordStrengthClass = () => {
+  const password = loginForm.password
+  if (password.length < 6) return 'weak'
+  if (password.length < 8) return 'medium'
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)) return 'strong'
+  return 'medium'
+}
+
+// 获取密码强度宽度
+const getPasswordStrengthWidth = () => {
+  const password = loginForm.password
+  if (password.length < 6) return '33%'
+  if (password.length < 8) return '66%'
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)) return '100%'
+  return '66%'
+}
+
+// 处理登录/注册
+const handleLogin = async () => {
+  try {
+    await loginFormRef.value.validate()
+    loading.value = true
+
+    // 调用后端API进行登录/注册
+    const result = await loginWithPassword({
+      username: loginForm.username,
+      phone: loginForm.phone,
+      password: loginForm.password,
+      isNewUser: isNewUser.value
+    })
+
+    if (result.success) {
+      ElMessage.success(isNewUser.value ? '注册成功' : '登录成功')
+      router.push('/display')
+    } else {
+      ElMessage.error(result.message || (isNewUser.value ? '注册失败' : '登录失败'))
+    }
+
+  } catch (error) {
+    console.error(isNewUser.value ? '注册失败:' : '登录失败:', error)
+
+    // 显示具体的错误信息
+    let errorMessage = error.message || (isNewUser.value ? '注册失败' : '登录失败')
+
+    // 根据错误类型显示不同的提示
+    if (error.response) {
+      const { status, data } = error.response
+      if (status === 400) {
+        errorMessage = data?.message || '请求参数错误，请检查输入信息'
+      } else if (status === 401) {
+        errorMessage = '用户名或密码错误'
+      } else if (status === 409) {
+        errorMessage = '用户名或手机号已存在'
+      } else {
+        errorMessage = data?.message || errorMessage
+      }
+    } else if (error.request) {
+      errorMessage = '网络连接失败，请检查网络设置'
+    }
+
+    ElMessage.error(errorMessage)
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<style scoped>
+.login-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    #0c1426 0%,
+    #1a1f3a 25%,
+    #16213e 50%,
+    #0f1419 75%,
+    #000814 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* 背景粒子 */
+.background-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(64, 224, 255, 0.6);
+  border-radius: 50%;
+  animation: float linear infinite;
+  box-shadow: 0 0 10px rgba(64, 224, 255, 0.8);
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* 登录卡片 */
+.login-card {
+  position: relative;
+  width: 420px;
+  padding: 40px;
+  border-radius: 20px;
+  z-index: 10;
+  overflow: hidden;
+  transform: translateY(-20px);
+
+  /* 增强立体感和发光效果 */
+  box-shadow:
+    0 0 0 1px rgba(64, 224, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 16px 64px rgba(64, 224, 255, 0.1),
+    0 32px 128px rgba(64, 224, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* 动态发光边框 */
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    linear-gradient(45deg, rgba(64, 224, 255, 0.1), rgba(30, 144, 255, 0.1));
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+
+  /* 添加动态光晕效果 */
+  animation: cardGlow 4s ease-in-out infinite;
+}
+
+/* 卡片发光动画 */
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(64, 224, 255, 0.1),
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 16px 64px rgba(64, 224, 255, 0.1),
+      0 32px 128px rgba(64, 224, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(64, 224, 255, 0.2),
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 16px 64px rgba(64, 224, 255, 0.2),
+      0 32px 128px rgba(64, 224, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* 卡片装饰 */
+.card-decoration {
+  position: relative;
+  height: 3px;
+  margin-bottom: 30px;
+}
+
+.decoration-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(64, 224, 255, 0.6) 20%,
+    rgba(64, 224, 255, 1) 50%,
+    rgba(64, 224, 255, 0.6) 80%,
+    transparent 100%);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.corner-accent {
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(45deg, #40e0ff, #1e90ff);
+  box-shadow: 0 0 10px rgba(64, 224, 255, 0.8);
+}
+
+.corner-accent.left { left: 0; }
+.corner-accent.right { right: 0; }
+
+/* Logo区域 */
+.logo-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo-icon {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #40e0ff, #1e90ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 30px rgba(64, 224, 255, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.2);
+
+  /* 优化Logo动画效果 */
+  animation: logoAnimation 6s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.icon-circle:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 40px rgba(64, 224, 255, 0.8),
+    0 0 60px rgba(64, 224, 255, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.icon-stock {
+  width: 40px;
+  height: 40px;
+  background: white;
+  clip-path: polygon(0% 100%, 25% 0%, 50% 50%, 75% 0%, 100% 100%);
+}
+
+/* Logo复合动画 */
+@keyframes logoAnimation {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    box-shadow:
+      0 0 30px rgba(64, 224, 255, 0.6),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.05);
+    box-shadow:
+      0 0 35px rgba(64, 224, 255, 0.7),
+      inset 0 0 20px rgba(255, 255, 255, 0.25);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+    box-shadow:
+      0 0 30px rgba(64, 224, 255, 0.6),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.05);
+    box-shadow:
+      0 0 35px rgba(64, 224, 255, 0.7),
+      inset 0 0 20px rgba(255, 255, 255, 0.25);
+  }
+}
+
+.system-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #40e0ff, #ffffff, #1e90ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(64, 224, 255, 0.5);
+}
+
+.system-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+/* 表单区域 */
+.form-section {
+  margin-top: 30px;
+}
+
+.login-form {
+  margin-bottom: 20px;
+}
+
+.custom-input {
+  --el-input-bg-color: rgba(255, 255, 255, 0.05);
+  --el-input-border-color: rgba(64, 224, 255, 0.3);
+  --el-input-hover-border-color: rgba(64, 224, 255, 0.6);
+  --el-input-focus-border-color: rgba(64, 224, 255, 0.8);
+  --el-input-text-color: white;
+  --el-input-placeholder-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 美化输入框聚焦状态 */
+.custom-input :deep(.el-input__wrapper) {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(64, 224, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-input :deep(.el-input__wrapper:hover) {
+  border-color: rgba(64, 224, 255, 0.6);
+  box-shadow: 0 0 20px rgba(64, 224, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.custom-input :deep(.el-input__wrapper.is-focus) {
+  border-color: rgba(64, 224, 255, 0.9);
+  box-shadow:
+    0 0 30px rgba(64, 224, 255, 0.4),
+    0 0 60px rgba(64, 224, 255, 0.2),
+    inset 0 0 20px rgba(64, 224, 255, 0.1);
+  transform: translateY(-2px);
+
+  /* 聚焦时的波纹扩散效果 */
+  animation: inputFocus 0.6s ease-out;
+}
+
+/* 输入框聚焦动画 */
+@keyframes inputFocus {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(64, 224, 255, 0.7),
+      0 0 30px rgba(64, 224, 255, 0.4),
+      0 0 60px rgba(64, 224, 255, 0.2),
+      inset 0 0 20px rgba(64, 224, 255, 0.1);
+  }
+  100% {
+    box-shadow:
+      0 0 0 20px rgba(64, 224, 255, 0),
+      0 0 30px rgba(64, 224, 255, 0.4),
+      0 0 60px rgba(64, 224, 255, 0.2),
+      inset 0 0 20px rgba(64, 224, 255, 0.1);
+  }
+}
+
+/* 输入框内部文字和图标优化 */
+.custom-input :deep(.el-input__inner) {
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.custom-input :deep(.el-input__inner:focus) {
+  color: #40e0ff;
+  text-shadow: 0 0 10px rgba(64, 224, 255, 0.5);
+}
+
+.custom-input :deep(.el-input__prefix) {
+  color: rgba(64, 224, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.custom-input :deep(.el-input__wrapper.is-focus .el-input__prefix) {
+  color: #40e0ff;
+  text-shadow: 0 0 10px rgba(64, 224, 255, 0.8);
+}
+
+/* 密码强度提示样式 */
+.password-hint {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100px;
+}
+
+.strength-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.strength-bar {
+  flex: 1;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease-in-out;
+}
+
+.strength-fill.weak {
+  background-color: #ff6b6b;
+}
+.strength-fill.medium {
+  background-color: #ffd700;
+}
+.strength-fill.strong {
+  background-color: #40e0ff;
+}
+
+/* 登录按钮 */
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #40e0ff, #1e90ff);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #1e90ff, #40e0ff);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(64, 224, 255, 0.4);
+}
+
+.login-btn:active {
+  transform: translateY(-1px);
+}
+
+/* 底部说明 */
+.login-footer {
+  text-align: center;
+}
+
+.footer-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0 0 5px 0;
+}
+
+/* 模式切换按钮 */
+.mode-switch {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.switch-btn {
+  color: rgba(64, 224, 255, 0.8);
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.switch-btn:hover {
+  color: #40e0ff;
+  background: rgba(64, 224, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.switch-btn:active {
+  transform: translateY(0);
+}
+
+/* 动画 */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Element Plus 样式覆盖 */
+:deep(.el-form-item) {
+  margin-bottom: 25px;
+}
+
+:deep(.el-form-item__error) {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 5px;
+}
+</style>
