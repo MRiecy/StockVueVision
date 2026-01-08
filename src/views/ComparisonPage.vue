@@ -126,6 +126,7 @@ import ComparisonChart from '@/components/comparison/ComparisonChart.vue';
 import RiskThreshold from '@/components/comparison/RiskThreshold.vue';
 import ComparisonTable from '@/components/comparison/ComparisonTable.vue';
 import RiskWarning from '@/components/comparison/RiskWarning.vue';
+import { fetchRiskAssessment } from '@/api/riskThresholdApi.js';
 
 export default {
   name: 'ComparisonPage',
@@ -138,12 +139,7 @@ export default {
   data() {
     return {
       activeMenu: 'asset',
-      riskThresholdData: [
-        { metric: '最大本金损失', value: '5%', status: 'normal' },
-        { metric: '波动率', value: '12%', status: 'warning' },
-        { metric: '最大回测幅度', value: '8%', status: 'normal' },
-        { metric: 'VaR值', value: '3.2%', status: 'normal' }
-      ],
+      riskThresholdData: [],
       riskWarnings: [
         {
           level: 'low',
@@ -160,7 +156,28 @@ export default {
       ]
     };
   },
+  async mounted() {
+    console.log('🚀 ComparisonPage mounted - 开始加载数据');
+    await this.loadRiskThresholdData();
+  },
   methods: {
+    async loadRiskThresholdData() {
+      try {
+        console.log('📡 开始请求风险阈值数据...');
+        const data = await fetchRiskAssessment('DEMO000001', 30);
+        console.log('✅ 风险阈值数据返回:', data);
+        
+        // 兼容两种数据格式
+        this.riskThresholdData = data.risk_indicators || data.indicators || [];
+        
+        console.log('📊 风险阈值赋值后:', this.riskThresholdData);
+      } catch (error) {
+        console.error('❌ 获取风险阈值数据失败:', error);
+        // 不显示数据
+        this.riskThresholdData = [];
+      }
+    },
+    
     setActiveMenu(menu) {
       this.activeMenu = menu;
     },

@@ -21,9 +21,9 @@
             v-for="(stock, index) in marketCapData"
             :key="index"
             class="stock-item"
-            :class="getStockCategory(stock.marketCap)"
+            :class="getStockCategory(stock)"
           >
-            <div class="stock-icon" :class="`icon-${getStockCategory(stock.marketCap)}`">
+            <div class="stock-icon" :class="`icon-${getStockCategory(stock)}`">
               <div class="icon-dot"></div>
             </div>
 
@@ -34,8 +34,8 @@
               </div>
             </div>
 
-            <div class="stock-category-badge" :class="getStockCategory(stock.marketCap)">
-              {{ getCategoryText(stock.marketCap) }}
+            <div class="stock-category-badge" :class="getStockCategory(stock)">
+              {{ getCategoryText(stock) }}
             </div>
           </div>
         </div>
@@ -85,6 +85,8 @@
 </template>
 
 <script>
+import { fetchMarketCapData } from '@/api/performanceAttributionApi.js';
+
 export default {
   name: 'RiskWarning',
   props: {
@@ -98,20 +100,17 @@ export default {
     return {
       currentTime: '',
       timer: null,
-      // 模拟市值数据，实际应用中应该从API获取
-      marketCapData: [
-        { name: '股票A', marketCap: 30, category: 'small' },
-        { name: '股票B', marketCap: 100, category: 'medium' },
-        { name: '股票C', marketCap: 800, category: 'large' },
-        { name: '股票D', marketCap: 45, category: 'small' },
-        { name: '股票E', marketCap: 300, category: 'medium' },
-        { name: '股票F', marketCap: 1200, category: 'large' }
-      ]
+      marketCapData: [],
+      marketCapSummary: { small: 0, medium: 0, large: 0, total: 0 },
+      loading: false
     };
   },
-  mounted() {
+  async mounted() {
     this.updateTime();
     this.timer = setInterval(this.updateTime, 1000);
+    
+    // 加载市值分布数据
+    await this.loadMarketCapData();
   },
   beforeUnmount() {
     if (this.timer) {
@@ -119,6 +118,37 @@ export default {
     }
   },
   methods: {
+    async loadMarketCapData() {
+      this.loading = true;
+      try {
+        console.log('📡 开始加载市值分布数据...');
+        const data = await fetchMarketCapData();
+        console.log('✅ 市值分布数据:', data);
+        
+        // 兼容新旧数据格式
+        if (data.stocks && data.summary) {
+          // 新格式：包含 stocks 和 summary
+          this.marketCapData = data.stocks;
+          this.marketCapSummary = data.summary;
+        } else if (Array.isArray(data)) {
+          // 旧格式：直接是数组
+          this.marketCapData = data;
+          this.marketCapSummary = this.calculateSummary(data);
+        } else {
+          this.marketCapData = [];
+          this.marketCapSummary = { small: 0, medium: 0, large: 0, total: 0 };
+        }
+        console.log('📊 市值数据赋值后:', this.marketCapData);
+        console.log('📊 市值统计:', this.marketCapSummary);
+      } catch (error) {
+        console.error('❌ 加载市值分布数据失败:', error);
+        // 不显示数据
+        this.marketCapData = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    
     updateTime() {
       const now = new Date();
       this.currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -135,35 +165,62 @@ export default {
     },
 
     getStatusSubtitle() {
-      const total = this.marketCapData.length;
-      const small = this.getSmallCapCount();
-      const medium = this.getMediumCapCount();
-      const large = this.getLargeCapCount();
+      const { total, small, medium, large } = this.marketCapSummary;
       return `共${total}只股票：小市值${small}只，中市值${medium}只，大市值${large}只`;
     },
 
-    getStockCategory(marketCap) {
-      if (marketCap < 50) return 'small';
-      if (marketCap >= 50 && marketCap < 500) return 'medium';
+    // 使用 API 层返回的 category，如果没有则兼容旧数据格式
+    getStockCategory(stock) {
+      // 优先使用 API 层返回的 category
+      if (stock.category) {
+        return stock.category;
+      }
+      // 兼容旧格式：根据 marketCap 计算
+      if (stock.marketCap < 50) return 'small';
+      if (stock.marketCap >= 50 && stock.marketCap < 500) return 'medium';
       return 'large';
     },
 
-    getCategoryText(marketCap) {
-      if (marketCap < 50) return '小市值';
-      if (marketCap >= 50 && marketCap < 500) return '中市值';
-      return '大市值';
+    getCategoryText(stock) {
+      const category = this.getStockCategory(stock);
+      const categoryMap = {
+        small: '小市值',
+        medium: '中市值',
+        large: '大市值'
+      };
+      return categoryMap[category] || '未知';
     },
 
+    // 直接使用 API 层返回的统计结果
     getSmallCapCount() {
-      return this.marketCapData.filter(stock => stock.marketCap < 50).length;
+      return this.marketCapSummary.small || 0;
     },
 
     getMediumCapCount() {
-      return this.marketCapData.filter(stock => stock.marketCap >= 50 && stock.marketCap < 500).length;
+      return this.marketCapSummary.medium || 0;
     },
 
     getLargeCapCount() {
-      return this.marketCapData.filter(stock => stock.marketCap >= 500).length;
+      return this.marketCapSummary.large || 0;
+    },
+
+    // 兼容旧数据格式的统计方法（仅在数据没有 summary 时使用）
+    calculateSummary(data) {
+      return {
+        small: data.filter(stock => {
+          const category = stock.category || (stock.marketCap < 50 ? 'small' : (stock.marketCap < 500 ? 'medium' : 'large'));
+          return category === 'small';
+        }).length,
+        medium: data.filter(stock => {
+          const category = stock.category || (stock.marketCap < 50 ? 'small' : (stock.marketCap < 500 ? 'medium' : 'large'));
+          return category === 'medium';
+        }).length,
+        large: data.filter(stock => {
+          const category = stock.category || (stock.marketCap < 50 ? 'small' : (stock.marketCap < 500 ? 'medium' : 'large'));
+          return category === 'large';
+        }).length,
+        total: data.length
+      };
     },
 
     handleMarketCapAnalysis() {
@@ -171,9 +228,9 @@ export default {
       // 这里可以实现市值分析的逻辑
     },
 
-    refreshMarketCapData() {
-      console.log('刷新市值数据');
-      // 这里可以实现刷新市值数据的逻辑
+    async refreshMarketCapData() {
+      console.log('🔄 刷新市值数据...');
+      await this.loadMarketCapData();
       this.$emit('refresh');
     }
   }

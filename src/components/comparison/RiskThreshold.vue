@@ -78,22 +78,13 @@ export default {
     },
 
     getWarningCount() {
-      // 预警：出现最大回撤的1/2
-      const maxDrawdown = this.data.find(item => item.metric === '最大回测幅度');
-      if (!maxDrawdown) return 0;
-      const halfDrawdown = parseFloat(maxDrawdown.value) / 2;
-      // 只要有一项等于最大回撤的1/2就算预警
-      return this.data.filter(item => parseFloat(item.value) === halfDrawdown).length;
+      // 统计状态为 'warning' 的指标数量
+      return this.data.filter(item => item.status === 'warning').length;
     },
+    
     getDangerCount() {
-      // 风险：出现最大回撤和波动率的1/2
-      const maxDrawdown = this.data.find(item => item.metric === '最大回测幅度');
-      const volatility = this.data.find(item => item.metric === '波动率');
-      if (!maxDrawdown || !volatility) return 0;
-      const halfDrawdown = parseFloat(maxDrawdown.value) / 2;
-      const halfVolatility = parseFloat(volatility.value) / 2;
-      // 只要有一项等于最大回撤的1/2或波动率的1/2就算风险
-      return this.data.filter(item => parseFloat(item.value) === halfDrawdown || parseFloat(item.value) === halfVolatility).length;
+      // 统计状态为 'danger' 的指标数量
+      return this.data.filter(item => item.status === 'danger').length;
     }
   }
 };

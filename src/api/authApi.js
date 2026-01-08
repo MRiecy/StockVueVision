@@ -92,6 +92,79 @@ export const sendVerificationCode = async (phone) => {
 }
 
 /**
+ * Token登录（连接迅投）
+ * @param {string} token - 迅投Token
+ * @returns {Promise<Object>} 登录结果
+ * @returns {boolean} success - 是否成功
+ * @returns {boolean} connected - 是否成功连接到迅投
+ * @returns {string} message - 返回消息
+ */
+export const loginWithToken = async (token) => {
+  try {
+    console.log('🔐 开始Token登录，Token长度:', token.trim().length)
+    
+    const response = await httpClient.post('/api/auth/token-login/', {
+      token: token.trim()
+    })
+
+    console.log('📥 Token登录API响应:', response.data)
+
+    // 确保返回数据格式正确
+    const result = response.data || {}
+    
+    // 如果登录成功，保存token到本地存储
+    if (result.success && result.connected) {
+      localStorage.setItem('xuntou_token', token.trim())
+      localStorage.setItem('auth_token', result.token || token.trim())
+      console.log('✅ Token登录成功，已保存到本地存储')
+    } else {
+      console.warn('⚠️ Token登录响应格式异常:', result)
+    }
+
+    // 确保返回格式统一
+    return {
+      success: result.success || false,
+      connected: result.connected || false,
+      message: result.message || '登录完成',
+      ...result
+    }
+  } catch (error) {
+    console.error('❌ Token登录失败:', error)
+    console.error('错误详情:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    })
+    
+    // 处理错误响应
+    if (error.response && error.response.data) {
+      const errorData = error.response.data
+      return {
+        success: false,
+        connected: false,
+        message: errorData.message || errorData.detail || errorData.error || 'Token无效，无法连接到迅投'
+      }
+    }
+    
+    // 处理网络错误等其他错误
+    if (error.message) {
+      return {
+        success: false,
+        connected: false,
+        message: error.message || '网络错误，请检查连接'
+      }
+    }
+    
+    // 如果都没有，返回默认错误
+    return {
+      success: false,
+      connected: false,
+      message: 'Token无效，无法连接到迅投'
+    }
+  }
+}
+
+/**
  * 手机号验证码登录/注册
  * @param {Object} loginData - 登录数据
  * @param {string} loginData.phone - 手机号码

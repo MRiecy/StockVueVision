@@ -6,7 +6,7 @@ import LoginPage from '@/views/LoginPage.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/display'  // 临时改为数据展示页面，方便开发
+    redirect: '/login'  // 默认跳转到登录页面
   },
   {
     path: '/login',

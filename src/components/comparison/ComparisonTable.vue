@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import { fetchAssetComparison, fetchYearlyComparisonData, fetchAreaComparison } from '@/api/comparisonModuleApi.js';
+
 export default {
   name: 'ComparisonTable',
   props: {
@@ -60,17 +62,25 @@ export default {
       default: 'asset'
     }
   },
+  data() {
+    return {
+      assetTableData: [],
+      timeTableData: [],
+      regionTableData: [],
+      loading: false
+    };
+  },
   computed: {
     tableData() {
       switch (this.tableType) {
         case 'asset':
-          return this.getAssetData();
+          return this.assetTableData;
         case 'time':
-          return this.getTimeData();
+          return this.timeTableData;
         case 'region':
-          return this.getRegionData();
+          return this.regionTableData;
         default:
-          return this.getAssetData();
+          return [];
       }
     },
 
@@ -78,38 +88,111 @@ export default {
       switch (this.tableType) {
         case 'asset':
           return [
-            { prop: 'name', label: '资产名称', minWidth: '120' },
-            { prop: 'return', label: '收益率', minWidth: '100', formatter: this.formatPercent },
-            { prop: 'volatility', label: '波动率', minWidth: '100', formatter: this.formatPercent },
-            { prop: 'sharpe', label: '夏普比率', minWidth: '120' },
-            { prop: 'trend', label: '趋势', minWidth: '100' },
-            { prop: 'risk', label: '历史分位', minWidth: '120' }
+            { prop: 'stock_code', label: '股票代码', minWidth: '120' },
+            { prop: 'stock_name', label: '股票名称', minWidth: '120' },
+            { prop: 'market_value', label: '市值(元)', minWidth: '120', formatter: this.formatNumber },
+            { prop: 'asset_ratio', label: '占比(%)', minWidth: '100', formatter: this.formatPercent },
+            { prop: 'daily_return', label: '日收益率(%)', minWidth: '120', formatter: this.formatPercent }
           ];
         case 'time':
           return [
-            { prop: 'period', label: '时间段', minWidth: '120' },
-            { prop: 'return', label: '收益率', minWidth: '100', formatter: this.formatPercent },
-            { prop: 'maxDrawdown', label: '最大回撤', minWidth: '120', formatter: this.formatPercent },
-            { prop: 'winRate', label: '胜率', minWidth: '100', formatter: this.formatPercent },
-            { prop: 'trades', label: '交易次数', minWidth: '120' },
-            { prop: 'risk', label: '风险等级', minWidth: '120' }
+            { prop: 'year', label: '年份', minWidth: '100' },
+            { prop: 'totalAssets', label: '总资产(元)', minWidth: '150', formatter: this.formatNumber },
+            { prop: 'returnRate', label: '回报率(%)', minWidth: '100', formatter: this.formatPercent },
+            { prop: 'investmentRate', label: '投资占比(%)', minWidth: '120', formatter: this.formatPercent }
           ];
         case 'region':
           return [
             { prop: 'region', label: '地区', minWidth: '120' },
-            { prop: 'allocation', label: '配置比例', minWidth: '120', formatter: this.formatPercent },
-            { prop: 'return', label: '收益率', minWidth: '100', formatter: this.formatPercent },
-            { prop: 'correlation', label: '相关性', minWidth: '120' },
-            { prop: 'trend', label: '趋势', minWidth: '100' },
-            { prop: 'risk', label: '风险等级', minWidth: '120' }
+            { prop: 'totalAssets', label: '总资产(元)', minWidth: '150', formatter: this.formatNumber },
+            { prop: 'returnRate', label: '回报率', minWidth: '100' },
+            { prop: 'investmentRate', label: '投资占比', minWidth: '120' }
           ];
         default:
           return [];
       }
     }
   },
-
+  watch: {
+    tableType: {
+      handler(newType) {
+        console.log(`📊 表格类型切换: ${newType}`);
+        this.loadTableData(newType);
+      },
+      immediate: true
+    }
+  },
   methods: {
+    async loadTableData(type) {
+      this.loading = true;
+      try {
+        switch (type) {
+          case 'asset':
+            await this.loadAssetData();
+            break;
+          case 'time':
+            await this.loadTimeData();
+            break;
+          case 'region':
+            await this.loadRegionData();
+            break;
+        }
+      } catch (error) {
+        console.error(`❌ 加载${type}表格数据失败:`, error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    async loadAssetData() {
+      try {
+        const data = await fetchAssetComparison();
+        console.log('✅ 资产对比表格数据:', data);
+        
+        // 兼容两种数据格式：asset_data 或 positions
+        const assetData = data.asset_data || data.positions || [];
+        
+        this.assetTableData = assetData.map(item => ({
+          stock_code: item.stock_code,
+          stock_name: item.stock_name || item.stock_code,
+          market_value: item.market_value,
+          asset_ratio: item.asset_ratio || item.percentage,
+          daily_return: item.daily_return || item.profit_loss_rate || 0
+        }));
+        
+        console.log('📋 资产表格数据赋值后:', this.assetTableData);
+      } catch (error) {
+        console.error('❌ 获取资产对比表格数据失败:', error);
+        this.assetTableData = [];
+      }
+    },
+    
+    async loadTimeData() {
+      try {
+        const data = await fetchYearlyComparisonData();
+        console.log('✅ 年度对比表格数据:', data);
+        
+        this.timeTableData = data.yearly_data || [];
+        console.log('📋 年度表格数据赋值后:', this.timeTableData);
+      } catch (error) {
+        console.error('❌ 获取年度对比表格数据失败:', error);
+        this.timeTableData = [];
+      }
+    },
+    
+    async loadRegionData() {
+      try {
+        const data = await fetchAreaComparison();
+        console.log('✅ 地区对比表格数据:', data);
+        
+        this.regionTableData = data.region_data || [];
+        console.log('📋 地区表格数据赋值后:', this.regionTableData);
+      } catch (error) {
+        console.error('❌ 获取地区对比表格数据失败:', error);
+        this.regionTableData = [];
+      }
+    },
+    
     getTableTitle() {
       const titleMap = {
         asset: '资产对比数据',
@@ -119,134 +202,13 @@ export default {
       return titleMap[this.tableType] || '对比数据';
     },
 
-    getAssetData() {
-      return [
-        {
-          name: '股票A',
-          return: 12.5,
-          volatility: 15.2,
-          sharpe: 1.85,
-          trend: '牛式',
-          risk: '90%'
-        },
-        {
-          name: '股票B',
-          return: 8.3,
-          volatility: 18.7,
-          sharpe: 1.42,
-          trend: '震荡',
-          risk: '70%'
-        },
-        {
-          name: '基金C',
-          return: 15.8,
-          volatility: 12.4,
-          sharpe: 2.12,
-          trend: '牛式',
-          risk: '30%'
-        },
-        {
-          name: '债券D',
-          return: 4.2,
-          volatility: 3.8,
-          sharpe: 1.08,
-          trend: '震荡',
-          risk: '10%'
-        },
-        {
-          name: '期货E',
-          return: -2.1,
-          volatility: 25.6,
-          sharpe: -0.15,
-          trend: '熊式',
-          risk: '5%'
-        }
-      ];
-    },
-
-    getTimeData() {
-      return [
-        {
-          period: '近1月',
-          return: 3.2,
-          maxDrawdown: -1.8,
-          winRate: 68.5,
-          trades: 15,
-          risk: '低'
-        },
-        {
-          period: '近3月',
-          return: 8.7,
-          maxDrawdown: -3.5,
-          winRate: 72.3,
-          trades: 42,
-          risk: '中'
-        },
-        {
-          period: '近6月',
-          return: 16.4,
-          maxDrawdown: -5.2,
-          winRate: 65.8,
-          trades: 89,
-          risk: '中'
-        },
-        {
-          period: '近1年',
-          return: 28.9,
-          maxDrawdown: -8.7,
-          winRate: 69.2,
-          trades: 178,
-          risk: '中'
-        },
-        {
-          period: '近2年',
-          return: 45.6,
-          maxDrawdown: -12.3,
-          winRate: 71.5,
-          trades: 356,
-          risk: '高'
-        }
-      ];
-    },
-
-    getRegionData() {
-      return [
-        {
-          region: 'A股',
-          allocation: 45.0,
-          return: 12.8,
-          correlation: 0.85,
-          trend: '牛式',
-          risk: '中'
-        },
-        {
-          region: '港股',
-          allocation: 25.0,
-          return: 8.5,
-          correlation: 0.72,
-          trend: '震荡',
-          risk: '中'
-        },
-        {
-          region: '美股',
-          allocation: 20.0,
-          return: 15.2,
-          correlation: 0.45,
-          trend: '牛式',
-          risk: '中'
-        },
-        {
-          region: '欧股',
-          allocation: 10.0,
-          return: 6.3,
-          correlation: 0.68,
-          trend: '震荡',
-          risk: '低'
-        }
-      ];
+    formatNumber(row, column, cellValue) {
+      if (cellValue === null || cellValue === undefined) return '-';
+      return Number(cellValue).toLocaleString();
     },
 
     formatPercent(row, column, cellValue) {
+      if (cellValue === null || cellValue === undefined) return '-';
       return `${cellValue}%`;
     },
 
@@ -292,9 +254,9 @@ export default {
       // 这里可以实现实际的导出功能
     },
 
-    refreshData() {
-      console.log('刷新数据');
-      // 这里可以实现数据刷新功能
+    async refreshData() {
+      console.log('🔄 刷新表格数据...');
+      await this.loadTableData(this.tableType);
     }
   }
 };
